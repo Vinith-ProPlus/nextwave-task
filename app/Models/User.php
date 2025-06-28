@@ -6,11 +6,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +23,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone',
+        'status',
     ];
 
     /**
@@ -44,5 +48,30 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+     public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    public function activeTasks(): HasMany
+    {
+        return $this->tasks()->where('status', '!=', 'completed');
+    }
+
+    public function completedTasks(): HasMany
+    {
+        return $this->tasks()->where('status', 'completed');
+    }
+
+    public function getTasksCountAttribute(): int
+    {
+        return $this->tasks()->count();
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
     }
 }

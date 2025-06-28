@@ -13,7 +13,16 @@ return new class extends Migration
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
+            $table->string('title');
+            $table->text('description')->nullable();
+            $table->enum('status', ['pending', 'in_progress', 'completed', 'cancelled'])->default('pending');
+            $table->enum('priority', ['low', 'medium', 'high'])->default('medium');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->dateTime('due_date')->nullable();
             $table->timestamps();
+
+            $table->index(['user_id', 'status']);
+            $table->index(['priority', 'due_date']);
         });
     }
 

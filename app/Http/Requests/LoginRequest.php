@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UserStoreRequest extends FormRequest
+class LoginRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,29 +23,23 @@ class UserStoreRequest extends FormRequest
      */
     public function rules(): array
     {
-        $userId = $this->route('user');
-
         return [
-            'name' => 'required|string|min:2|max:255',
-            'email' => 'required|email|unique:users,email' . ($userId ? ",$userId" : ''),
-            'password' => $this->isMethod('POST') ? 'required|string|min:8|confirmed' : 'nullable|string|min:8|confirmed',
-            'phone' => 'nullable|string|max:20',
-            'status' => 'sometimes|in:active,inactive',
+            'email' => 'required|email',
+            'password' => 'required|string|min:6',
         ];
     }
-
+    /**
+     * Get the custom messages for the validation rules.
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [
-            'name.required' => 'The name field is required.',
-            'name.min' => 'The name must be at least 2 characters.',
-            'email.required' => 'The email field is required.',
+            'email.required' => 'Email is required.',
             'email.email' => 'Please provide a valid email address.',
-            'email.unique' => 'This email is already taken.',
-            'password.required' => 'The password field is required.',
-            'password.min' => 'The password must be at least 8 characters.',
-            'password.confirmed' => 'The password confirmation does not match.',
-            'status.in' => 'The status must be either active or inactive.',
+            'password.required' => 'Password is required.',
+            'password.min' => 'Password must be at least 6 characters.',
         ];
     }
 
