@@ -177,7 +177,7 @@ Content-Type: application/json
     "title": "Complete Project",
     "description": "Finish the project documentation",
     "priority": "high",
-    "due_date": "2024-01-15"
+    "due_date": "2025-07-15"
 }
 ```
 

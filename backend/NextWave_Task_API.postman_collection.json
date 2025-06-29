@@ -257,7 +257,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Vinith Admin\",\n    \"email\": \"Vinith@example.com\",\n    \"password\": \"password123\"\n}"
+							"raw": "{\n    \"name\": \"Vinith\",\n    \"email\": \"Vinith@example.com\",\n    \"password\": \"password123\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/users",
@@ -325,7 +325,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Vinith Updated Kumar\",\n    \"email\": \"Vinith.updated@example.com\",\n}"
+							"raw": "{\n    \"name\": \"Vinith Kumar Updated\",\n    \"email\": \"Vinith.updated@example.com\",\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/users/{{user_id}}",
@@ -502,7 +502,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"title\": \"Complete API Testing\",\n    \"description\": \"Test all API endpoints thoroughly\",\n    \"priority\": \"high\",\n    \"due_date\": \"2024-01-15\",\n    \"status\": \"pending\",\n    \"user_id\": \"1\"\n}"
+							"raw": "{\n    \"title\": \"Complete API Testing\",\n    \"description\": \"Test all API endpoints thoroughly\",\n    \"priority\": \"high\",\n    \"due_date\": \"2025-07-15\",\n    \"status\": \"pending\",\n    \"user_id\": \"1\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/tasks",

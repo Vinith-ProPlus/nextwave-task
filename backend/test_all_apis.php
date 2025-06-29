@@ -162,7 +162,7 @@ if ($userId) {
 // Test 10: Create Another User (Admin)
 echo "🔟 Testing Create Another User...\n";
 $userData = [
-    'name' => 'Vinith Admin',
+    'name' => 'Vinith',
     'email' => 'Vinith@example.com',
     'password' => 'password123',
 ];
