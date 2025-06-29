@@ -24,7 +24,6 @@ class UserTest extends TestCase
             'name' => 'Admin User',
             'email' => 'admin@example.com',
             'password' => Hash::make('password123'),
-            'role' => 'admin',
         ]);
 
         $loginResponse = $this->post('/api/login', [
@@ -537,33 +536,6 @@ class UserTest extends TestCase
     }
 
     /**
-     * Test filtering users by role
-     */
-    public function test_can_filter_users_by_role()
-    {
-        User::create([
-            'name' => 'Test Admin User',
-            'email' => 'testadmin2@example.com',
-            'password' => Hash::make('password123'),
-            'role' => 'admin'
-        ]);
-
-        User::create([
-            'name' => 'Regular User',
-            'email' => 'user@example.com',
-            'password' => Hash::make('password123'),
-            'role' => 'user'
-        ]);
-
-        $response = $this->get('/api/users?role=admin', ['Authorization' => 'Bearer ' . $this->token]);
-
-        $response->assertResponseStatus(200);
-        $data = json_decode($response->response->getContent(), true);
-        $this->assertCount(2, $data['data']['data']); // Admin User from setUp + Test Admin User
-        $this->assertEquals('admin', $data['data']['data'][0]['role']);
-    }
-
-    /**
      * Test filtering users by date range
      */
     public function test_can_filter_users_by_date_range()
@@ -618,16 +590,6 @@ class UserTest extends TestCase
         $this->assertEquals('true', $data['data']['filters']['is_active']);
         $this->assertEquals('name', $data['data']['filters']['sort_by']);
         $this->assertEquals('asc', $data['data']['filters']['sort_order']);
-    }
-
-    /**
-     * Test validation of role filter parameter
-     */
-    public function test_validates_role_filter_parameter()
-    {
-        $response = $this->get('/api/users?role=invalid_role', ['Authorization' => 'Bearer ' . $this->token]);
-        $response->assertResponseStatus(422);
-        $response->seeJsonStructure(['errors' => ['role']]);
     }
 
     /**

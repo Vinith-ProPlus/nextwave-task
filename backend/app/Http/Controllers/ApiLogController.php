@@ -126,12 +126,12 @@ class ApiLogController extends Controller
                     ->orderBy('status_code')
                     ->get(),
                 'average_response_time' => ApiLog::avg('duration_ms'),
-                'requests_today' => ApiLog::whereDate('created_at', Carbon::today())->count(),
-                'requests_this_week' => ApiLog::whereBetween('created_at', [
+                'requests_today' => ApiLog::whereDate('timestamp', Carbon::today())->count(),
+                'requests_this_week' => ApiLog::whereBetween('timestamp', [
                     Carbon::now()->startOfWeek(),
                     Carbon::now()->endOfWeek()
                 ])->count(),
-                'requests_this_month' => ApiLog::whereMonth('created_at', Carbon::now()->month)->count(),
+                'requests_this_month' => ApiLog::whereMonth('timestamp', Carbon::now()->month)->count(),
                 'methods' => ApiLog::selectRaw('method, COUNT(*) as count')
                     ->groupBy('method')
                     ->orderBy('count', 'desc')

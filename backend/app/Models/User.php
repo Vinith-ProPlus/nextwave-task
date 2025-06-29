@@ -21,7 +21,6 @@ class User extends \Illuminate\Database\Eloquent\Model implements Authenticatabl
         'name',
         'email',
         'password',
-        'role',
         'is_active',
         'email_verified_at',
     ];

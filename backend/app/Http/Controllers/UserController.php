@@ -37,11 +37,10 @@ class UserController extends Controller
             // Validate request parameters first
             $validator = Validator::make($request->all(), [
                 'search' => 'nullable|string|max:255',
-                'role' => 'nullable|in:admin,user,manager',
                 'is_active' => 'nullable|in:true,false,1,0,yes,no,on,off',
                 'created_at_from' => 'nullable|date',
                 'created_at_to' => 'nullable|date',
-                'sort_by' => 'nullable|in:name,email,role,created_at',
+                'sort_by' => 'nullable|in:name,email,created_at',
                 'sort_order' => 'nullable|in:asc,desc',
                 'page' => 'nullable|integer|min:1',
                 'per_page' => 'nullable|integer|min:1|max:100',
@@ -67,7 +66,6 @@ class UserController extends Controller
 
             // Define filters configuration
             $filters = [
-                'role' => ['type' => 'exact'],
                 'is_active' => ['type' => 'boolean'],
                 // Support both start_date/end_date and created_at_from/created_at_to
                 'created_at_from' => ['type' => 'date_range', 'start_field' => 'created_at', 'operator' => '>='],
@@ -77,7 +75,7 @@ class UserController extends Controller
             ];
 
             $searchableFields = ['name', 'email'];
-            $sortableFields = ['name', 'email', 'role', 'created_at'];
+            $sortableFields = ['name', 'email', 'created_at'];
 
             // Apply filters, sorting, and pagination
             $result = $this->applyFilters(
@@ -115,7 +113,6 @@ class UserController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|min:8',
-                'role' => 'nullable|in:admin,user,manager',
                 'is_active' => 'nullable|boolean',
             ], [
                 'name.required' => 'The name field is required.',
@@ -125,7 +122,6 @@ class UserController extends Controller
                 'email.unique' => 'The email has already been taken.',
                 'password.required' => 'The password field is required.',
                 'password.min' => 'The password must be at least 8 characters.',
-                'role.in' => 'The role must be one of: admin, user, manager.',
             ]);
 
             if ($validator->fails()) {
@@ -136,7 +132,6 @@ class UserController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'role' => $request->role ?? 'user',
                 'is_active' => $request->is_active ?? true,
             ]);
 
@@ -188,7 +183,6 @@ class UserController extends Controller
                 'name' => 'sometimes|required|string|max:255',
                 'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
                 'password' => 'nullable|string|min:8',
-                'role' => 'nullable|in:admin,user,manager',
                 'is_active' => 'nullable|boolean',
             ], [
                 'name.required' => 'The name field is required.',
@@ -197,20 +191,27 @@ class UserController extends Controller
                 'email.email' => 'The email must be a valid email address.',
                 'email.unique' => 'The email has already been taken.',
                 'password.min' => 'The password must be at least 8 characters.',
-                'role.in' => 'The role must be one of: admin, user, manager.',
             ]);
 
             if ($validator->fails()) {
                 return $this->validationErrorResponse($validator->errors());
             }
 
-            $data = $request->only(['name', 'email', 'role', 'is_active']);
-
-            if ($request->filled('password')) {
-                $data['password'] = Hash::make($request->password);
+            // Update user fields
+            if ($request->has('name')) {
+                $user->name = $request->name;
+            }
+            if ($request->has('email')) {
+                $user->email = $request->email;
+            }
+            if ($request->has('password')) {
+                $user->password = Hash::make($request->password);
+            }
+            if ($request->has('is_active')) {
+                $user->is_active = $request->is_active;
             }
 
-            $user->update($data);
+            $user->save();
 
             return $this->successResponse($user, 'User updated successfully');
         } catch (\Exception $e) {

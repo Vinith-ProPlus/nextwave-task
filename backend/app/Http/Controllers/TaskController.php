@@ -120,11 +120,6 @@ class TaskController extends Controller
                 return $this->notFoundResponse('Task not found');
             }
 
-            // Check if user can access this task
-            if ($task->user_id !== Auth::id() && $task->assigned_by !== Auth::id()) {
-                return $this->forbiddenResponse('You do not have permission to view this task');
-            }
-
             return $this->successResponse($task, 'Task retrieved successfully');
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to retrieve task: ' . $e->getMessage(), 500);
@@ -145,11 +140,6 @@ class TaskController extends Controller
 
             if (!$task) {
                 return $this->notFoundResponse('Task not found');
-            }
-
-            // Check if user can update this task
-            if ($task->user_id !== Auth::id() && $task->assigned_by !== Auth::id()) {
-                return $this->forbiddenResponse('You do not have permission to update this task');
             }
 
             // Validate the request
@@ -204,11 +194,6 @@ class TaskController extends Controller
                 return $this->notFoundResponse('Task not found');
             }
 
-            // Check if user can update this task
-            if ($task->user_id !== Auth::id() && $task->assigned_by !== Auth::id()) {
-                return $this->forbiddenResponse('You do not have permission to update this task');
-            }
-
             // Validate the request
             $validator = Validator::make($request->all(), [
                 'status' => 'required|in:pending,in_progress,completed,cancelled',
@@ -249,11 +234,6 @@ class TaskController extends Controller
 
             if (!$task) {
                 return $this->notFoundResponse('Task not found');
-            }
-
-            // Check if user can delete this task
-            if ($task->user_id !== Auth::id() && $task->assigned_by !== Auth::id()) {
-                return $this->forbiddenResponse('You do not have permission to delete this task');
             }
 
             $task->delete();
