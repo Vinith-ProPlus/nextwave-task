@@ -13,8 +13,8 @@ $taskId = null;
 // Test 1: User Registration
 echo "1️⃣ Testing User Registration...\n";
 $registerData = [
-    'name' => 'John Doe',
-    'email' => 'john@example.com',
+    'name' => 'Vinith Kumar',
+    'email' => 'Vinith@example.com',
     'password' => 'password123',
     'password_confirmation' => 'password123'
 ];
@@ -36,7 +36,7 @@ if ($response['status'] === 201) {
 // Test 2: User Login
 echo "2️⃣ Testing User Login...\n";
 $loginData = [
-    'email' => 'john@example.com',
+    'email' => 'Vinith@example.com',
     'password' => 'password123'
 ];
 
@@ -68,7 +68,7 @@ $taskData = [
     'title' => 'Complete API Testing',
     'description' => 'Test all API endpoints thoroughly',
     'priority' => 'high',
-    'due_date' => '2024-12-31'
+    'due_date' => '2025-12-31'
 ];
 
 $response = makeRequest('POST', '/tasks', $taskData, $token);
@@ -165,7 +165,6 @@ $userData = [
     'name' => 'Jane Admin',
     'email' => 'jane@example.com',
     'password' => 'password123',
-    'role' => 'admin'
 ];
 
 $response = makeRequest('POST', '/users', $userData, $token);
@@ -196,8 +195,8 @@ if ($response['status'] === 200) {
 if ($userId) {
     echo "1️⃣2️⃣ Testing Update User...\n";
     $updateData = [
-        'name' => 'John Updated Doe',
-        'email' => 'john.updated@example.com'
+        'name' => 'Vinith Updated Kumar',
+        'email' => 'Vinith.updated@example.com'
     ];
 
     $response = makeRequest('PUT', "/users/$userId", $updateData, $token);

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 class Task extends Model
 {
@@ -17,6 +18,7 @@ class Task extends Model
      */
     protected $fillable = [
         'user_id',
+        'assigned_by',
         'title',
         'description',
         'status',
@@ -41,6 +43,14 @@ class Task extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the user who assigned the task.
+     */
+    public function assignedBy()
+    {
+        return $this->belongsTo(User::class, 'assigned_by');
     }
 
     /**
@@ -74,7 +84,7 @@ class Task extends Model
     {
         $this->update([
             'status' => 'completed',
-            'completed_at' => now(),
+            'completed_at' => Carbon::now(),
         ]);
     }
 }

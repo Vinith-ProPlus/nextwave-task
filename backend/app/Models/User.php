@@ -21,7 +21,6 @@ class User extends \Illuminate\Database\Eloquent\Model implements Authenticatabl
         'name',
         'email',
         'password',
-        'role',
         'is_active',
         'email_verified_at',
     ];
@@ -72,13 +71,5 @@ class User extends \Illuminate\Database\Eloquent\Model implements Authenticatabl
     public function tasks()
     {
         return $this->hasMany(Task::class);
-    }
-
-    /**
-     * Check if user is admin.
-     */
-    public function isAdmin()
-    {
-        return $this->role === 'admin';
     }
 }

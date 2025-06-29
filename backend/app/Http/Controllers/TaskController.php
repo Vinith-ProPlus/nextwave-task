@@ -21,7 +21,8 @@ class TaskController extends Controller
     public function index()
     {
         try {
-            $tasks = Task::paginate(10);
+            $user = Auth::user();
+            $tasks = Task::where('user_id', $user->id)->paginate(10);
             return $this->successResponse($tasks, 'Tasks retrieved successfully');
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to retrieve tasks: ' . $e->getMessage(), 500);
@@ -42,7 +43,6 @@ class TaskController extends Controller
             'status' => 'sometimes|in:pending,in_progress,completed,cancelled',
             'priority' => 'sometimes|in:low,medium,high,urgent',
             'due_date' => 'nullable|date|after:today',
-            'user_id' => 'required|exists:users,id',
         ]);
 
         if ($validator->fails()) {
@@ -50,8 +50,10 @@ class TaskController extends Controller
         }
 
         try {
+            $user = Auth::user();
             $task = Task::create([
-                'user_id' => $request->user_id,
+                'user_id' => $user->id,
+                'assigned_by' => $user->id,
                 'title' => $request->title,
                 'description' => $request->description,
                 'status' => $request->status ?? 'pending',
@@ -102,7 +104,6 @@ class TaskController extends Controller
             'status' => 'sometimes|in:pending,in_progress,completed,cancelled',
             'priority' => 'sometimes|in:low,medium,high,urgent',
             'due_date' => 'nullable|date',
-            'user_id' => 'required|exists:users,id',
         ]);
 
         if ($validator->fails()) {
@@ -110,13 +111,14 @@ class TaskController extends Controller
         }
 
         try {
-            $task = Task::find($id);
+            $user = Auth::user();
+            $task = Task::where('user_id', $user->id)->find($id);
 
             if (!$task) {
                 return $this->notFoundResponse('Task not found');
             }
 
-            $data = $request->only(['title', 'description', 'status', 'priority', 'due_date', 'user_id']);
+            $data = $request->only(['title', 'description', 'status', 'priority', 'due_date']);
 
             // If status is being updated to completed, set completed_at
             if (isset($data['status']) && $data['status'] === 'completed') {
@@ -142,7 +144,6 @@ class TaskController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'status' => 'required|in:pending,in_progress,completed,cancelled',
-            'user_id' => 'required|exists:tasks,user_id',
         ]);
 
         if ($validator->fails()) {
@@ -150,7 +151,7 @@ class TaskController extends Controller
         }
 
         try {
-            $task = Task::where('user_id', $request->user_id)->find($id);
+            $task = Task::find($id);
 
             if (!$task) {
                 return $this->notFoundResponse('Task not found');
@@ -179,7 +180,8 @@ class TaskController extends Controller
     public function destroy($id)
     {
         try {
-            $task = Task::find($id);
+            $user = Auth::user();
+            $task = Task::where('user_id', $user->id)->find($id);
 
             if (!$task) {
                 return $this->notFoundResponse('Task not found');
@@ -194,7 +196,7 @@ class TaskController extends Controller
     }
 
     /**
-     * Get tasks for a specific user (admin only)
+     * Get tasks for a specific user
      *
      * @param int $userId
      * @return \Illuminate\Http\JsonResponse
@@ -202,13 +204,6 @@ class TaskController extends Controller
     public function getUserTasks($userId)
     {
         try {
-            $user = Auth::user();
-
-            // Check if authenticated user is admin or the same user
-            if (!$user->isAdmin() && $user->id != $userId) {
-                return $this->forbiddenResponse('Access denied');
-            }
-
             $targetUser = User::find($userId);
             if (!$targetUser) {
                 return $this->notFoundResponse('User not found');
@@ -216,10 +211,7 @@ class TaskController extends Controller
 
             $tasks = Task::where('user_id', $userId)->paginate(10);
 
-            return $this->successResponse([
-                'user' => $targetUser,
-                'tasks' => $tasks,
-            ], 'User tasks retrieved successfully');
+            return $this->successResponse($tasks, 'User tasks retrieved successfully');
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to retrieve user tasks: ' . $e->getMessage(), 500);
         }

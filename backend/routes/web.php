@@ -25,7 +25,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     $router->post('login', 'AuthController@login');
 
     // Protected routes
-    $router->group(['middleware' => 'auth'], function () use ($router) {
+    $router->group(['middleware' => 'jwt.auth'], function () use ($router) {
 
         // Auth routes
         $router->post('logout', 'AuthController@logout');
@@ -44,7 +44,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
         $router->post('tasks', 'TaskController@store');
         $router->get('tasks/{id}', 'TaskController@show');
         $router->put('tasks/{id}', 'TaskController@update');
-        $router->patch('tasks/{id}', 'TaskController@updateStatus');
+        $router->patch('tasks/{id}/status', 'TaskController@updateStatus');
         $router->delete('tasks/{id}', 'TaskController@destroy');
 
         // Get tasks for specific user

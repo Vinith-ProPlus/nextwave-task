@@ -78,8 +78,8 @@ POST /api/register
 Content-Type: application/json
 
 {
-    "name": "John Doe",
-    "email": "john@example.com",
+    "name": "Vinith Kumar",
+    "email": "Vinith@example.com",
     "password": "password123",
     "password_confirmation": "password123"
 }
@@ -91,7 +91,7 @@ POST /api/login
 Content-Type: application/json
 
 {
-    "email": "john@example.com",
+    "email": "Vinith@example.com",
     "password": "password123"
 }
 ```
@@ -129,10 +129,9 @@ Authorization: Bearer {token}
 Content-Type: application/json
 
 {
-    "name": "Jane Doe",
+    "name": "Jane Kumar",
     "email": "jane@example.com",
     "password": "password123",
-    "role": "user"
 }
 ```
 
@@ -151,7 +150,6 @@ Content-Type: application/json
 {
     "name": "Updated Name",
     "email": "updated@example.com",
-    "role": "admin"
 }
 ```
 

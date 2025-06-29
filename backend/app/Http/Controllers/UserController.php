@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -39,7 +40,6 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
-            'role' => 'sometimes|in:admin,user',
         ]);
 
         if ($validator->fails()) {
@@ -51,7 +51,6 @@ class UserController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'role' => $request->role ?? 'user',
             ]);
 
             return $this->successResponse($user, 'User created successfully', 201);
@@ -94,7 +93,6 @@ class UserController extends Controller
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|string|email|max:255|unique:users,email,' . $id,
             'password' => 'sometimes|string|min:8',
-            'role' => 'sometimes|in:admin,user',
             'is_active' => 'sometimes|boolean',
         ]);
 
@@ -109,7 +107,7 @@ class UserController extends Controller
                 return $this->notFoundResponse('User not found');
             }
 
-            $data = $request->only(['name', 'email', 'role', 'is_active']);
+            $data = $request->only(['name', 'email', 'is_active']);
 
             if ($request->has('password')) {
                 $data['password'] = Hash::make($request->password);
