@@ -48,6 +48,6 @@ $router->group(['prefix' => 'api'], function () use ($router) {
         $router->delete('tasks/{id}', 'TaskController@destroy');
 
         // Get tasks for specific user
-        $router->get('users/{id}/tasks', 'TaskController@getUserTasks');
+        $router->get('users/{userId}/tasks', 'TaskController@getUserTasks');
     });
 });

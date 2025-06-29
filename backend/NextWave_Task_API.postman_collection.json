@@ -423,7 +423,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"title\": \"Complete API Testing\",\n    \"description\": \"Test all API endpoints thoroughly\",\n    \"priority\": \"high\",\n    \"due_date\": \"2024-01-15\",\n    \"status\": \"pending\"\n}"
+							"raw": "{\n    \"title\": \"Complete API Testing\",\n    \"description\": \"Test all API endpoints thoroughly\",\n    \"priority\": \"high\",\n    \"due_date\": \"2024-01-15\",\n    \"status\": \"pending\",\n    \"user_id\": \"1\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/tasks",
@@ -491,7 +491,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"title\": \"Updated Task Title\",\n    \"description\": \"Updated task description\",\n    \"priority\": \"medium\",\n    \"due_date\": \"2024-01-20\",\n    \"status\": \"in_progress\"\n}"
+							"raw": "{\n    \"title\": \"Updated Task Title\",\n    \"description\": \"Updated task description\",\n    \"priority\": \"medium\",\n    \"due_date\": \"2024-01-20\",\n    \"status\": \"in_progress\",\n    \"user_id\": \"1\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/tasks/{{task_id}}",
@@ -530,7 +530,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"status\": \"completed\"\n}"
+							"raw": "{\n    \"status\": \"completed\",\n    \"user_id\": \"1\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/tasks/{{task_id}}",
