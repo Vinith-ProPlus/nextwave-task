@@ -26,6 +26,10 @@ abstract class TestCase extends BaseTestCase
      */
     public function runDatabaseMigrations()
     {
+        // Use SQLite for testing
+        $this->app['config']->set('database.default', 'sqlite');
+        $this->app['config']->set('database.connections.sqlite.database', ':memory:');
+
         $this->artisan('migrate:fresh');
         $this->beforeApplicationDestroyed(function () {
             $this->artisan('migrate:rollback');

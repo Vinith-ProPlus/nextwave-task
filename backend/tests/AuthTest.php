@@ -87,7 +87,7 @@ class AuthTest extends TestCase
 
         // Try to register with same email
         $userData = [
-            'name' => 'Jane Kumar',
+            'name' => 'Vinith Kumar',
             'email' => 'Vinith@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123'

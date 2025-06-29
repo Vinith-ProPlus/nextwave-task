@@ -49,5 +49,10 @@ $router->group(['prefix' => 'api'], function () use ($router) {
 
         // Get tasks for specific user
         $router->get('users/{userId}/tasks', 'TaskController@getUserTasks');
+
+        // API Log routes
+        $router->get('logs', 'ApiLogController@index');
+        $router->get('logs/statistics', 'ApiLogController@statistics');
+        $router->get('logs/{id}', 'ApiLogController@show');
     });
 });

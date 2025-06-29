@@ -7,6 +7,7 @@ use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -21,17 +22,27 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->validationErrorResponse($validator->errors());
-        }
-
         try {
+            // Validate the request
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:8|confirmed',
+            ], [
+                'name.required' => 'The name field is required.',
+                'name.max' => 'The name may not be greater than 255 characters.',
+                'email.required' => 'The email field is required.',
+                'email.email' => 'The email must be a valid email address.',
+                'email.unique' => 'The email has already been taken.',
+                'password.required' => 'The password field is required.',
+                'password.min' => 'The password must be at least 8 characters.',
+                'password.confirmed' => 'The password confirmation does not match.',
+            ]);
+
+            if ($validator->fails()) {
+                return $this->validationErrorResponse($validator->errors());
+            }
+
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -42,10 +53,11 @@ class AuthController extends Controller
 
             return $this->successResponse([
                 'user' => $user,
-                'token' => $token,
+                'token' => $token
             ], 'User registered successfully', 201);
         } catch (\Exception $e) {
-            return $this->errorResponse('Registration failed: ' . $e->getMessage(), 500);
+            Log::error('Registration failed: ' . $e->getMessage());
+            return $this->errorResponse('Failed to register user: ' . $e->getMessage(), 500);
         }
     }
 
@@ -57,31 +69,36 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
+        try {
+            // Validate the request
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|string|email',
+                'password' => 'required|string',
+            ], [
+                'email.required' => 'The email field is required.',
+                'email.email' => 'The email must be a valid email address.',
+                'password.required' => 'The password field is required.',
+            ]);
 
-        if ($validator->fails()) {
-            return $this->validationErrorResponse($validator->errors());
+            if ($validator->fails()) {
+                return $this->validationErrorResponse($validator->errors());
+            }
+
+            $credentials = $request->only(['email', 'password']);
+
+            if (!$token = Auth::attempt($credentials)) {
+                return $this->errorResponse('Invalid credentials', 401);
+            }
+
+            $user = Auth::user();
+
+            return $this->successResponse([
+                'user' => $user,
+                'token' => $token
+            ], 'Login successful');
+        } catch (\Exception $e) {
+            return $this->errorResponse('Failed to login: ' . $e->getMessage(), 500);
         }
-
-        $credentials = $request->only(['email', 'password']);
-
-        if (!$token = Auth::attempt($credentials)) {
-            return $this->unauthorizedResponse('Invalid credentials');
-        }
-
-        $user = Auth::user();
-
-        if (!$user->is_active) {
-            return $this->forbiddenResponse('Account is deactivated');
-        }
-
-        return $this->successResponse([
-            'user' => $user,
-            'token' => $token,
-        ], 'Login successful');
     }
 
     /**
@@ -93,9 +110,10 @@ class AuthController extends Controller
     {
         try {
             Auth::logout();
+
             return $this->successResponse(null, 'Logout successful');
         } catch (\Exception $e) {
-            return $this->errorResponse('Logout failed: ' . $e->getMessage(), 500);
+            return $this->errorResponse('Failed to logout: ' . $e->getMessage(), 500);
         }
     }
 
@@ -106,8 +124,13 @@ class AuthController extends Controller
      */
     public function me()
     {
-        $user = Auth::user();
-        return $this->successResponse($user, 'User profile retrieved successfully');
+        try {
+            $user = Auth::user();
+
+            return $this->successResponse($user, 'User profile retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse('Failed to retrieve user: ' . $e->getMessage(), 500);
+        }
     }
 
     /**
@@ -119,9 +142,14 @@ class AuthController extends Controller
     {
         try {
             $token = Auth::refresh();
-            return $this->successResponse(['token' => $token], 'Token refreshed successfully');
+            $user = Auth::user();
+
+            return $this->successResponse([
+                'user' => $user,
+                'token' => $token
+            ], 'Token refreshed successfully');
         } catch (\Exception $e) {
-            return $this->errorResponse('Token refresh failed: ' . $e->getMessage(), 500);
+            return $this->errorResponse('Failed to refresh token: ' . $e->getMessage(), 500);
         }
     }
 }

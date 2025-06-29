@@ -5,6 +5,7 @@ namespace Tests;
 use App\Models\User;
 use App\Models\Task;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class TaskTest extends TestCase
 {
@@ -161,8 +162,8 @@ class TaskTest extends TestCase
     public function test_cannot_get_task_belonging_to_another_user()
     {
         $otherUser = User::create([
-            'name' => 'Jane Smith',
-            'email' => 'jane@example.com',
+            'name' => 'Vinith Kumar',
+            'email' => 'Vinith@example.com',
             'password' => Hash::make('password123')
         ]);
         $task = Task::create([
@@ -174,8 +175,8 @@ class TaskTest extends TestCase
             'priority' => 'medium'
         ]);
         $response = $this->get('/api/tasks/' . $task->id, ['Authorization' => 'Bearer ' . $this->token]);
-        $response->assertResponseStatus(404);
-        $response->seeJson(['success' => false, 'message' => 'Task not found']);
+        $response->assertResponseStatus(403);
+        $response->seeJson(['success' => false, 'message' => 'You do not have permission to view this task']);
     }
 
     public function test_can_update_task()
@@ -221,13 +222,17 @@ class TaskTest extends TestCase
             'success' => true,
             'message' => 'Task updated successfully'
         ]);
+
+        // Verify completed_at is set
+        $task->refresh();
+        $this->assertNotNull($task->completed_at);
     }
 
     public function test_cannot_update_nonexistent_task()
     {
         $updateData = [
             'title' => 'Updated Task',
-            'description' => 'Updated Description'
+            'status' => 'in_progress'
         ];
         $response = $this->put('/api/tasks/999', $updateData, ['Authorization' => 'Bearer ' . $this->token]);
         $response->assertResponseStatus(404);
@@ -271,6 +276,10 @@ class TaskTest extends TestCase
             'success' => true,
             'message' => 'Task status updated successfully'
         ]);
+
+        // Verify completed_at is set
+        $task->refresh();
+        $this->assertNotNull($task->completed_at);
     }
 
     public function test_cannot_update_task_status_without_status_field()
@@ -283,7 +292,8 @@ class TaskTest extends TestCase
             'status' => 'pending',
             'priority' => 'medium'
         ]);
-        $response = $this->patch('/api/tasks/' . $task->id . '/status', [], ['Authorization' => 'Bearer ' . $this->token]);
+        $updateData = [];
+        $response = $this->patch('/api/tasks/' . $task->id . '/status', $updateData, ['Authorization' => 'Bearer ' . $this->token]);
         $response->assertResponseStatus(422);
         $response->seeJsonStructure(['errors' => ['status']]);
     }
@@ -304,6 +314,9 @@ class TaskTest extends TestCase
             'success' => true,
             'message' => 'Task deleted successfully'
         ]);
+
+        // Verify task is deleted
+        $this->assertNull(Task::find($task->id));
     }
 
     public function test_cannot_delete_nonexistent_task()
@@ -316,8 +329,8 @@ class TaskTest extends TestCase
     public function test_can_get_tasks_for_specific_user()
     {
         $otherUser = User::create([
-            'name' => 'Jane Smith',
-            'email' => 'jane@example.com',
+            'name' => 'Vinith Kumar',
+            'email' => 'Vinith@example.com',
             'password' => Hash::make('password123')
         ]);
         Task::create([
@@ -353,7 +366,306 @@ class TaskTest extends TestCase
         ];
         $response = $this->post('/api/tasks', $taskData, ['Authorization' => 'Bearer ' . $this->token]);
         $response->assertResponseStatus(201);
-        $responseData = json_decode($response->response->getContent(), true);
-        $this->assertEquals($this->user->id, $responseData['data']['assigned_by']);
+
+        $taskId = json_decode($response->response->getContent(), true)['data']['id'];
+        $task = Task::find($taskId);
+        $this->assertEquals($this->user->id, $task->assigned_by);
+    }
+
+    /**
+     * Test filtering tasks by search
+     */
+    public function test_can_filter_tasks_by_search()
+    {
+        Task::create([
+            'user_id' => $this->user->id,
+            'assigned_by' => $this->user->id,
+            'title' => 'Important Task',
+            'description' => 'This is an important task',
+            'status' => 'pending',
+            'priority' => 'high'
+        ]);
+
+        Task::create([
+            'user_id' => $this->user->id,
+            'assigned_by' => $this->user->id,
+            'title' => 'Regular Task',
+            'description' => 'This is a regular task',
+            'status' => 'pending',
+            'priority' => 'medium'
+        ]);
+
+        $response = $this->get('/api/tasks?search=important', ['Authorization' => 'Bearer ' . $this->token]);
+
+        $response->assertResponseStatus(200);
+        $data = json_decode($response->response->getContent(), true);
+        $this->assertEquals(1, $data['data']['pagination']['total']);
+        $this->assertStringContainsString('important', strtolower($data['data']['data'][0]['title']));
+    }
+
+    /**
+     * Test filtering tasks by status
+     */
+    public function test_can_filter_tasks_by_status()
+    {
+        Task::create([
+            'user_id' => $this->user->id,
+            'assigned_by' => $this->user->id,
+            'title' => 'Pending Task',
+            'description' => 'This is a pending task',
+            'status' => 'pending',
+            'priority' => 'medium'
+        ]);
+
+        Task::create([
+            'user_id' => $this->user->id,
+            'assigned_by' => $this->user->id,
+            'title' => 'Completed Task',
+            'description' => 'This is a completed task',
+            'status' => 'completed',
+            'priority' => 'medium'
+        ]);
+
+        $response = $this->get('/api/tasks?status=completed', ['Authorization' => 'Bearer ' . $this->token]);
+
+        $response->assertResponseStatus(200);
+        $data = json_decode($response->response->getContent(), true);
+        $this->assertEquals(1, $data['data']['pagination']['total']);
+        $this->assertEquals('completed', $data['data']['data'][0]['status']);
+    }
+
+    /**
+     * Test filtering tasks by priority
+     */
+    public function test_can_filter_tasks_by_priority()
+    {
+        Task::create([
+            'user_id' => $this->user->id,
+            'assigned_by' => $this->user->id,
+            'title' => 'High Priority Task',
+            'description' => 'This is a high priority task',
+            'status' => 'pending',
+            'priority' => 'high'
+        ]);
+
+        Task::create([
+            'user_id' => $this->user->id,
+            'assigned_by' => $this->user->id,
+            'title' => 'Low Priority Task',
+            'description' => 'This is a low priority task',
+            'status' => 'pending',
+            'priority' => 'low'
+        ]);
+
+        $response = $this->get('/api/tasks?priority=high', ['Authorization' => 'Bearer ' . $this->token]);
+
+        $response->assertResponseStatus(200);
+        $data = json_decode($response->response->getContent(), true);
+        $this->assertEquals(1, $data['data']['pagination']['total']);
+        $this->assertEquals('high', $data['data']['data'][0]['priority']);
+    }
+
+    /**
+     * Test filtering tasks by completion status
+     */
+    public function test_can_filter_tasks_by_is_completed()
+    {
+        $completedTask = Task::create([
+            'user_id' => $this->user->id,
+            'assigned_by' => $this->user->id,
+            'title' => 'Completed Task',
+            'description' => 'This is a completed task',
+            'status' => 'completed',
+            'priority' => 'medium',
+            'completed_at' => Carbon::now()
+        ]);
+
+        Task::create([
+            'user_id' => $this->user->id,
+            'assigned_by' => $this->user->id,
+            'title' => 'Pending Task',
+            'description' => 'This is a pending task',
+            'status' => 'pending',
+            'priority' => 'medium'
+        ]);
+
+        $response = $this->get('/api/tasks?is_completed=true', ['Authorization' => 'Bearer ' . $this->token]);
+        $response->assertResponseStatus(200);
+
+        $data = json_decode($response->response->getContent(), true);
+        $this->assertCount(1, $data['data']['data']);
+        $this->assertEquals('completed', $data['data']['data'][0]['status']);
+    }
+
+    /**
+     * Test filtering tasks by overdue status
+     */
+    public function test_can_filter_tasks_by_is_overdue()
+    {
+        Task::create([
+            'user_id' => $this->user->id,
+            'assigned_by' => $this->user->id,
+            'title' => 'Overdue Task',
+            'description' => 'This is an overdue task',
+            'status' => 'pending',
+            'priority' => 'medium',
+            'due_date' => Carbon::now()->subDays(5)
+        ]);
+
+        Task::create([
+            'user_id' => $this->user->id,
+            'assigned_by' => $this->user->id,
+            'title' => 'Future Task',
+            'description' => 'This is a future task',
+            'status' => 'pending',
+            'priority' => 'medium',
+            'due_date' => Carbon::now()->addDays(5)
+        ]);
+
+        $response = $this->get('/api/tasks?is_overdue=true', ['Authorization' => 'Bearer ' . $this->token]);
+        $response->assertResponseStatus(200);
+
+        $data = json_decode($response->response->getContent(), true);
+        $this->assertCount(1, $data['data']['data']);
+        $this->assertEquals('Overdue Task', $data['data']['data'][0]['title']);
+    }
+
+    /**
+     * Test filtering tasks by date range
+     */
+    public function test_can_filter_by_date_range()
+    {
+        Task::create([
+            'user_id' => $this->user->id,
+            'assigned_by' => $this->user->id,
+            'title' => 'Task with due date',
+            'description' => 'Task with specific due date',
+            'status' => 'pending',
+            'priority' => 'medium',
+            'due_date' => '2025-06-15'
+        ]);
+
+        $response = $this->get('/api/tasks?start_date=2025-06-01&end_date=2025-06-30', ['Authorization' => 'Bearer ' . $this->token]);
+        $response->assertResponseStatus(200);
+
+        $data = json_decode($response->response->getContent(), true);
+        $this->assertCount(1, $data['data']['data']);
+        $this->assertEquals('Task with due date', $data['data']['data'][0]['title']);
+    }
+
+    /**
+     * Test sorting tasks
+     */
+    public function test_can_sort_tasks()
+    {
+        Task::create([
+            'user_id' => $this->user->id,
+            'assigned_by' => $this->user->id,
+            'title' => 'Alpha Task',
+            'description' => 'First task',
+            'status' => 'pending',
+            'priority' => 'medium'
+        ]);
+
+        Task::create([
+            'user_id' => $this->user->id,
+            'assigned_by' => $this->user->id,
+            'title' => 'Beta Task',
+            'description' => 'Second task',
+            'status' => 'pending',
+            'priority' => 'medium'
+        ]);
+
+        $response = $this->get('/api/tasks?sort_by=title&sort_order=asc', ['Authorization' => 'Bearer ' . $this->token]);
+
+        $response->assertResponseStatus(200);
+        $data = json_decode($response->response->getContent(), true);
+        $this->assertEquals('Alpha Task', $data['data']['data'][0]['title']);
+    }
+
+    /**
+     * Test pagination
+     */
+    public function test_can_paginate_tasks()
+    {
+        // Create multiple tasks
+        for ($i = 1; $i <= 25; $i++) {
+            Task::create([
+                'user_id' => $this->user->id,
+                'assigned_by' => $this->user->id,
+                'title' => "Task {$i}",
+                'description' => "Description for task {$i}",
+                'status' => 'pending',
+                'priority' => 'medium'
+            ]);
+        }
+
+        $response = $this->get('/api/tasks?per_page=10', ['Authorization' => 'Bearer ' . $this->token]);
+
+        $response->assertResponseStatus(200);
+        $data = json_decode($response->response->getContent(), true);
+        $this->assertEquals(10, $data['data']['pagination']['per_page']);
+        $this->assertEquals(10, count($data['data']['data']));
+        $this->assertGreaterThan(1, $data['data']['pagination']['last_page']);
+    }
+
+    /**
+     * Test validation of filter parameters
+     */
+    public function test_validates_filter_parameters()
+    {
+        $response = $this->get('/api/tasks?sort_by=invalid_field', ['Authorization' => 'Bearer ' . $this->token]);
+
+        $response->assertResponseStatus(422);
+    }
+
+    /**
+     * Test validation of pagination parameters
+     */
+    public function test_validates_pagination_parameters()
+    {
+        $response = $this->get('/api/tasks?per_page=150', ['Authorization' => 'Bearer ' . $this->token]);
+
+        $response->assertResponseStatus(422);
+    }
+
+    /**
+     * Test response includes pagination metadata
+     */
+    public function test_response_includes_pagination_metadata()
+    {
+        Task::create([
+            'user_id' => $this->user->id,
+            'assigned_by' => $this->user->id,
+            'title' => 'Test Task',
+            'description' => 'Test Description',
+            'status' => 'pending',
+            'priority' => 'medium'
+        ]);
+
+        $response = $this->get('/api/tasks', ['Authorization' => 'Bearer ' . $this->token]);
+        $response->assertResponseStatus(200);
+
+        $data = json_decode($response->response->getContent(), true);
+        $this->assertArrayHasKey('pagination', $data['data']);
+        $this->assertArrayHasKey('current_page', $data['data']['pagination']);
+        $this->assertArrayHasKey('per_page', $data['data']['pagination']);
+        $this->assertArrayHasKey('total', $data['data']['pagination']);
+    }
+
+    /**
+     * Test response includes applied filters
+     */
+    public function test_response_includes_applied_filters()
+    {
+        $response = $this->get('/api/tasks?search=test&status=pending&sort_by=title&sort_order=asc', ['Authorization' => 'Bearer ' . $this->token]);
+        $response->assertResponseStatus(200);
+
+        $data = json_decode($response->response->getContent(), true);
+        $this->assertArrayHasKey('filters', $data['data']);
+        $this->assertEquals('test', $data['data']['filters']['search']);
+        $this->assertEquals('pending', $data['data']['filters']['status']);
+        $this->assertEquals('title', $data['data']['filters']['sort_by']);
+        $this->assertEquals('asc', $data['data']['filters']['sort_order']);
     }
 }

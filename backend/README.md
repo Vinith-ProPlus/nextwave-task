@@ -129,8 +129,8 @@ Authorization: Bearer {token}
 Content-Type: application/json
 
 {
-    "name": "Jane Kumar",
-    "email": "jane@example.com",
+    "name": "Vinith Kumar",
+    "email": "Vinith@example.com",
     "password": "password123",
 }
 ```

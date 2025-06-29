@@ -185,15 +185,52 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/users",
+							"raw": "{{base_url}}/users?search=&status=&start_date=&end_date=&sort_by=created_at&sort_order=desc&per_page=15",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"users"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "",
+									"description": "Search in name and email"
+								},
+								{
+									"key": "is_active",
+									"value": "",
+									"description": "Filter by active status (true/false)"
+								},
+								{
+									"key": "start_date",
+									"value": "",
+									"description": "Filter by start date (YYYY-MM-DD)"
+								},
+								{
+									"key": "end_date",
+									"value": "",
+									"description": "Filter by end date (YYYY-MM-DD)"
+								},
+								{
+									"key": "sort_by",
+									"value": "created_at",
+									"description": "Sort by field (created_at, updated_at, name, email)"
+								},
+								{
+									"key": "sort_order",
+									"value": "desc",
+									"description": "Sort order (asc, desc)"
+								},
+								{
+									"key": "per_page",
+									"value": "15",
+									"description": "Items per page (1-100)"
+								}
 							]
 						},
-						"description": "Get all users (Admin only)"
+						"description": "Get all users with filtering, sorting, and pagination"
 					},
 					"response": []
 				},
@@ -220,7 +257,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Jane Admin\",\n    \"email\": \"jane@example.com\",\n    \"password\": \"password123\"\n}"
+							"raw": "{\n    \"name\": \"Vinith Admin\",\n    \"email\": \"Vinith@example.com\",\n    \"password\": \"password123\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/users",
@@ -388,15 +425,57 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/tasks",
+							"raw": "{{base_url}}/tasks?search=&status=&priority=&start_date=&end_date=&sort_by=created_at&sort_order=desc&per_page=15",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"tasks"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "",
+									"description": "Search in title and description"
+								},
+								{
+									"key": "status",
+									"value": "",
+									"description": "Filter by status (pending, in_progress, completed, cancelled)"
+								},
+								{
+									"key": "priority",
+									"value": "",
+									"description": "Filter by priority (low, medium, high, urgent)"
+								},
+								{
+									"key": "start_date",
+									"value": "",
+									"description": "Filter by start date (YYYY-MM-DD)"
+								},
+								{
+									"key": "end_date",
+									"value": "",
+									"description": "Filter by end date (YYYY-MM-DD)"
+								},
+								{
+									"key": "sort_by",
+									"value": "created_at",
+									"description": "Sort by field (created_at, updated_at, title, due_date, priority, status)"
+								},
+								{
+									"key": "sort_order",
+									"value": "desc",
+									"description": "Sort order (asc, desc)"
+								},
+								{
+									"key": "per_page",
+									"value": "15",
+									"description": "Items per page (1-100)"
+								}
 							]
 						},
-						"description": "Get all tasks for the authenticated user"
+						"description": "Get all tasks for the authenticated user with filtering, sorting, and pagination"
 					},
 					"response": []
 				},
@@ -579,6 +658,143 @@
 				}
 			],
 			"description": "Task management endpoints for CRUD operations on tasks"
+		},
+		{
+			"name": "API Log Management",
+			"item": [
+				{
+					"name": "Get All API Logs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/logs?search=&method=&status_code=&start_date=&end_date=&sort_by=timestamp&sort_order=desc&per_page=15",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"logs"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "",
+									"description": "Search in endpoint, method, user_agent, ip"
+								},
+								{
+									"key": "method",
+									"value": "",
+									"description": "Filter by HTTP method (GET, POST, PUT, PATCH, DELETE)"
+								},
+								{
+									"key": "status_code",
+									"value": "",
+									"description": "Filter by status code (100-599)"
+								},
+								{
+									"key": "start_date",
+									"value": "",
+									"description": "Filter by start date (YYYY-MM-DD)"
+								},
+								{
+									"key": "end_date",
+									"value": "",
+									"description": "Filter by end date (YYYY-MM-DD)"
+								},
+								{
+									"key": "sort_by",
+									"value": "timestamp",
+									"description": "Sort by field (timestamp, method, endpoint, status_code, duration_ms)"
+								},
+								{
+									"key": "sort_order",
+									"value": "desc",
+									"description": "Sort order (asc, desc)"
+								},
+								{
+									"key": "per_page",
+									"value": "15",
+									"description": "Items per page (1-100)"
+								}
+							]
+						},
+						"description": "Get all API logs with filtering, sorting, and pagination"
+					},
+					"response": []
+				},
+				{
+					"name": "Get API Log by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/logs/{{log_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"logs",
+								"{{log_id}}"
+							]
+						},
+						"description": "Get specific API log by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get API Logs Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/logs/statistics",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"logs",
+								"statistics"
+							]
+						},
+						"description": "Get API logs statistics and analytics"
+					},
+					"response": []
+				}
+			],
+			"description": "API log management endpoints for monitoring and analytics"
 		}
 	],
 	"event": [
@@ -619,6 +835,11 @@
 		},
 		{
 			"key": "task_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "log_id",
 			"value": "",
 			"type": "string"
 		}
