@@ -116,11 +116,6 @@
         .table th { background: #eee; color: #111; }
         .badge { background: #eee; color: #111; border-radius: 4px; padding: 0.25em 0.5em; }
         .alert { border-radius: 6px; }
-        /* Animation classes now have no opacity or transform */
-        .fade-in, .slide-in-left, .slide-in-right {
-            /* opacity: 1 !important; */
-            transform: none !important;
-        }
     </style>
 
     <!-- Select2 CSS -->
@@ -135,47 +130,48 @@
     </div>
 
     <div class="main-container">
-        @auth
-        <!-- Navigation -->
-        <nav class="navbar">
-            <div class="navbar-brand">
-                <i class="fas fa-rocket"></i> NextWave
-            </div>
-            <div class="navbar-nav">
-                <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
-                    Dashboard
-                </a>
-                <a class="nav-link {{ request()->routeIs('tasks.*') ? 'active' : '' }}" href="{{ route('tasks.index') }}">
-                    Tasks
-                </a>
-                <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
-                    Users
-                </a>
-                <a class="nav-link {{ request()->routeIs('apilog.*') ? 'active' : '' }}" href="{{ url('/apilog') }}">
-                    API Log
-                </a>
-                @if(auth()->check())
-                    <div class="dropdown ms-3">
-                        <button class="btn btn-secondary dropdown-toggle d-flex align-items-center" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: #fff; color: #222; border: none;">
-                            <span class="profile-initial d-inline-block text-uppercase me-2" style="background: #007bff; color: #fff; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold;">
-                                {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
-                            </span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                            <li><a class="dropdown-item" href="{{ route('profile') }}"><i class="fas fa-user me-2"></i>Profile</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </div>
-                @endif
+        @if(Auth::check())
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold" href="/">Project Name</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('users.index') }}">Manage Users</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('tasks.index') }}">Manage Tasks</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url('/api-logs') }}">API Logs</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1.2rem;">
+                                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                                <li><a class="dropdown-item" href="{{ route('users.edit', Auth::user()->id) }}">Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item">Logout</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </nav>
-        @endauth
+        @endif
 
         <!-- Main Content -->
         <div class="content-wrapper">
@@ -224,48 +220,8 @@
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- GSAP -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
     <!-- Custom JS -->
     <script>
-        // GSAP Animations
-        gsap.registerPlugin(ScrollTrigger);
-
-        // Initialize animations when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            // Fade in animations
-            gsap.from('.fade-in', {
-                duration: 0.8,
-                y: 30,
-                stagger: 0.2,
-                ease: 'power2.out'
-            });
-
-            // Slide in animations
-            gsap.from('.slide-in-left', {
-                duration: 0.8,
-                x: -50,
-                stagger: 0.1,
-                ease: 'power2.out'
-            });
-
-            gsap.from('.slide-in-right', {
-                duration: 0.8,
-                x: 50,
-                stagger: 0.1,
-                ease: 'power2.out'
-            });
-
-            // Smooth scrolling
-            gsap.to('html, body', {
-                duration: 1,
-                scrollTo: { y: 0 },
-                ease: 'power2.out'
-            });
-        });
-
         // SweetAlert Configuration
         const Toast = Swal.mixin({
             toast: true,
@@ -387,6 +343,50 @@
         setTimeout(function() {
             $('.alert').fadeOut('slow');
         }, 5000);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('form').forEach(function(form) {
+                let submitted = false;
+                form.addEventListener('submit', function(e) {
+                    if (submitted) {
+                        e.preventDefault();
+                        return false;
+                    }
+                    submitted = true;
+                    const btn = form.querySelector('button[type="submit"]');
+                    if (btn) btn.disabled = true;
+                });
+            });
+        });
+
+        // GLOBAL NETWORK LOGGER
+        (function() {
+            // Log all jQuery AJAX requests
+            if (window.jQuery) {
+                $(document).ajaxSend(function(event, jqxhr, settings) {
+                    console.log('[AJAX]', settings.type, settings.url, 'Data:', settings.data, '\nCall stack:', new Error().stack);
+                });
+            }
+            // Log all fetch requests
+            if (window.fetch) {
+                const origFetch = window.fetch;
+                window.fetch = function() {
+                    const args = arguments;
+                    let url = args[0];
+                    let opts = args[1] || {};
+                    console.log('[FETCH]', opts.method || 'GET', url, 'Opts:', opts, '\nCall stack:', new Error().stack);
+                    return origFetch.apply(this, arguments);
+                };
+            }
+            // Log all XMLHttpRequests
+            const origOpen = XMLHttpRequest.prototype.open;
+            XMLHttpRequest.prototype.open = function(method, url) {
+                this.addEventListener('loadstart', function() {
+                    console.log('[XHR]', method, url, '\nCall stack:', new Error().stack);
+                });
+                origOpen.apply(this, arguments);
+            };
+        })();
     </script>
 
     <!-- Select2 JS -->

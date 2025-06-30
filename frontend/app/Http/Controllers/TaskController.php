@@ -113,7 +113,6 @@ class TaskController extends Controller
             }
             $usersResult = $this->apiService->getUsers(['per_page' => 100000]);
             $users = $usersResult['success'] ? $usersResult['data']['data'] : [];
-            Log::error("Users: " . json_encode($users));
             return view('tasks.edit', [
                 'task' => $result['data'],
                 'users' => $users
@@ -159,24 +158,18 @@ class TaskController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
+        logger("updateStatus from controller: " . json_encode($request->all()));
         try {
             if (!$this->apiService->isAuthenticated()) {
                 return redirect()->route('login');
             }
-            $validator = Validator::make($request->all(), [
-                'status' => 'required|in:pending,in_progress,completed,cancelled',
-            ], [
-                'status.required' => 'Status is required',
-                'status.in' => 'Invalid status selected',
-            ]);
-            if ($validator->fails()) {
-                return redirect()->back()
-                    ->withErrors($validator);
-            }
             $result = $this->apiService->updateTaskStatus($id, $request->status);
+            logger("updateStatus response from controller: " . json_encode($result));
             if ($result['success']) {
-                return redirect()->back()
-                    ->with('success', 'Task status updated successfully!');
+                // Clear validation errors from session
+                session()->forget('_old_input');
+                session()->forget('errors');
+                return redirect()->route('tasks.show', $id)->with('success', 'Task status updated successfully!');
             }
             return redirect()->back()
                 ->with('error', $result['message'] ?? 'Failed to update task status');

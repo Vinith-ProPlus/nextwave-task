@@ -29,7 +29,7 @@
     <div class="row">
         <!-- User Information -->
         <div class="col-md-4">
-            <div class="card fade-in">
+            <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-user-circle me-2"></i>User Information
@@ -103,7 +103,7 @@
 
         <!-- User Tasks -->
         <div class="col-md-8">
-            <div class="card slide-in-right">
+            <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-tasks me-2"></i>Assigned Tasks
@@ -177,13 +177,13 @@
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                                <a href="{{ route('tasks.show', $task['id']) }}" 
-                                                   class="btn btn-sm btn-outline-primary" 
+                                                <a href="{{ route('tasks.show', $task['id']) }}"
+                                                   class="btn btn-sm btn-outline-primary"
                                                    title="View">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                <a href="{{ route('tasks.edit', $task['id']) }}" 
-                                                   class="btn btn-sm btn-outline-warning" 
+                                                <a href="{{ route('tasks.edit', $task['id']) }}"
+                                                   class="btn btn-sm btn-outline-warning"
                                                    title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
@@ -225,4 +225,4 @@
     border: 3px solid #dee2e6;
 }
 </style>
-@endpush 
+@endpush

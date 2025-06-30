@@ -59,14 +59,14 @@ class ApiService
     protected function makeRequest($method, $endpoint, $data = null, $useCache = false, $cacheKey = null, $cacheTime = 300)
     {
         $fullUrl = $this->baseUrl . $endpoint;
-        
+
         Log::info("Making API request to: {$fullUrl}", [
             'method' => $method,
             'data' => $data
         ]);
-        
+
         $headers = [];
-        
+
         if ($this->token) {
             $headers['Authorization'] = 'Bearer ' . $this->token;
         }
@@ -81,7 +81,7 @@ class ApiService
 
         try {
             $options = ['headers' => $headers];
-            
+
             if ($data && in_array($method, ['POST', 'PUT', 'PATCH'])) {
                 $options['json'] = $data;
             }
@@ -112,13 +112,13 @@ class ApiService
             $errorBody = $response ? json_decode($response->getBody(), true) : null;
             $status = $response ? $response->getStatusCode() : 500;
             $message = $errorBody['message'] ?? '';
-            
+
             // Token expired/invalid/unauthorized handling
             if (in_array($status, [401, 403]) || stripos($message, 'token') !== false || stripos($message, 'unauthorized') !== false) {
                 $this->clearToken();
                 throw new TokenExpiredException($message ?: 'Session expired, please log in again.');
             }
-            
+
             Log::error("API request failed", [
                 'url' => $fullUrl,
                 'method' => $method,
@@ -126,7 +126,7 @@ class ApiService
                 'error' => $e->getMessage(),
                 'response' => $errorBody
             ]);
-            
+
             return [
                 'success' => false,
                 'message' => $message ?: 'API request failed',
@@ -139,7 +139,7 @@ class ApiService
                 'method' => $method,
                 'error' => $e->getMessage()
             ]);
-            
+
             return [
                 'success' => false,
                 'message' => 'Network error: ' . $e->getMessage(),
@@ -192,7 +192,7 @@ class ApiService
     {
         $query = http_build_query($filters);
         $cacheKey = 'users_list_' . md5($query);
-        
+
         return $this->makeRequest('GET', '/users?' . $query, null, true, $cacheKey, 60);
     }
 
@@ -204,35 +204,35 @@ class ApiService
     public function createUser($userData)
     {
         $result = $this->makeRequest('POST', '/users', $userData);
-        
+
         if ($result['success']) {
             Cache::forget('users_list_');
         }
-        
+
         return $result;
     }
 
     public function updateUser($id, $userData)
     {
         $result = $this->makeRequest('PUT', "/users/{$id}", $userData);
-        
+
         if ($result['success']) {
             Cache::forget("user_{$id}");
             Cache::forget('users_list_');
         }
-        
+
         return $result;
     }
 
     public function deleteUser($id)
     {
         $result = $this->makeRequest('DELETE', "/users/{$id}");
-        
+
         if ($result['success']) {
             Cache::forget("user_{$id}");
             Cache::forget('users_list_');
         }
-        
+
         return $result;
     }
 
@@ -241,7 +241,7 @@ class ApiService
     {
         $query = http_build_query($filters);
         $cacheKey = 'tasks_list_' . md5($query);
-        
+
         return $this->makeRequest('GET', '/tasks?' . $query, null, true, $cacheKey, 60);
     }
 
@@ -253,47 +253,48 @@ class ApiService
     public function createTask($taskData)
     {
         $result = $this->makeRequest('POST', '/tasks', $taskData);
-        
+
         if ($result['success']) {
             Cache::forget('tasks_list_');
         }
-        
+
         return $result;
     }
 
     public function updateTask($id, $taskData)
     {
         $result = $this->makeRequest('PUT', "/tasks/{$id}", $taskData);
-        
+
         if ($result['success']) {
             Cache::forget("task_{$id}");
             Cache::forget('tasks_list_');
         }
-        
+
         return $result;
     }
 
     public function updateTaskStatus($id, $status)
     {
         $result = $this->makeRequest('PATCH', "/tasks/{$id}/status", ['status' => $status]);
-        
+        logger("updateTaskStatus: " . json_encode($result));
+
         if ($result['success']) {
             Cache::forget("task_{$id}");
             Cache::forget('tasks_list_');
         }
-        
+
         return $result;
     }
 
     public function deleteTask($id)
     {
         $result = $this->makeRequest('DELETE', "/tasks/{$id}");
-        
+
         if ($result['success']) {
             Cache::forget("task_{$id}");
             Cache::forget('tasks_list_');
         }
-        
+
         return $result;
     }
 
@@ -307,7 +308,7 @@ class ApiService
     {
         $query = http_build_query($filters);
         $cacheKey = 'api_logs_' . md5($query);
-        
+
         return $this->makeRequest('GET', '/logs?' . $query, null, true, $cacheKey, 30);
     }
 
@@ -328,4 +329,4 @@ class ApiService
     }
 }
 
-class TokenExpiredException extends \Exception {} 
+class TokenExpiredException extends \Exception {}

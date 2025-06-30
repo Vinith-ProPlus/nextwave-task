@@ -32,21 +32,30 @@
                     @if(isset($users) && count($users) === 0)
                         <div class="alert alert-warning">No users available to assign. Please add users first.</div>
                     @endif
-                    <form method="POST" action="{{ route('tasks.update', $task['id']) }}" id="editTaskForm">
+                    <form method="POST" action="{{ route('tasks.update', $task['id']) }}" id="editTaskForm" autocomplete="off">
                         @csrf
                         @method('PUT')
-                        
+                        <input type="hidden" name="form_token" id="form_token" value="{{ uniqid('task_', true) }}">
+
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <div class="alert alert-info">
+                                    <strong>Note:</strong> To quickly change only the status (pause, start, complete, cancel), use the quick action buttons on the task details page. This form is for editing all task details.
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="mb-3">
                                     <label for="title" class="form-label">
                                         <i class="fas fa-heading me-1"></i>Task Title <span class="text-danger">*</span>
                                     </label>
-                                    <input type="text" 
-                                           class="form-control @error('title') is-invalid @enderror" 
-                                           id="title" 
-                                           name="title" 
-                                           value="{{ old('title', $task['title']) }}" 
+                                    <input type="text"
+                                           class="form-control @error('title') is-invalid @enderror"
+                                           id="title"
+                                           name="title"
+                                           value="{{ old('title', $task['title']) }}"
                                            placeholder="Enter task title"
                                            required>
                                     @error('title')
@@ -60,9 +69,9 @@
                                     <label for="priority" class="form-label">
                                         <i class="fas fa-exclamation-triangle me-1"></i>Priority <span class="text-danger">*</span>
                                     </label>
-                                    <select class="form-select @error('priority') is-invalid @enderror" 
-                                            id="priority" 
-                                            name="priority" 
+                                    <select class="form-select @error('priority') is-invalid @enderror"
+                                            id="priority"
+                                            name="priority"
                                             required>
                                         <option value="">Select Priority</option>
                                         <option value="low" {{ old('priority', $task['priority']) == 'low' ? 'selected' : '' }}>Low</option>
@@ -81,10 +90,10 @@
                             <label for="description" class="form-label">
                                 <i class="fas fa-align-left me-1"></i>Description
                             </label>
-                            <textarea class="form-control @error('description') is-invalid @enderror" 
-                                      id="description" 
-                                      name="description" 
-                                      rows="4" 
+                            <textarea class="form-control @error('description') is-invalid @enderror"
+                                      id="description"
+                                      name="description"
+                                      rows="4"
                                       placeholder="Enter task description">{{ old('description', $task['description']) }}</textarea>
                             @error('description')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -119,10 +128,10 @@
                                     <label for="due_date" class="form-label">
                                         <i class="fas fa-calendar me-1"></i>Due Date
                                     </label>
-                                    <input type="datetime-local" 
-                                           class="form-control @error('due_date') is-invalid @enderror" 
-                                           id="due_date" 
-                                           name="due_date" 
+                                    <input type="datetime-local"
+                                           class="form-control @error('due_date') is-invalid @enderror"
+                                           id="due_date"
+                                           name="due_date"
                                            value="{{ old('due_date', $task['due_date'] ? \Carbon\Carbon::parse($task['due_date'])->format('Y-m-d\TH:i') : '') }}">
                                     @error('due_date')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -135,9 +144,9 @@
                                     <label for="status" class="form-label">
                                         <i class="fas fa-tasks me-1"></i>Status <span class="text-danger">*</span>
                                     </label>
-                                    <select class="form-select @error('status') is-invalid @enderror" 
-                                            id="status" 
-                                            name="status" 
+                                    <select class="form-select @error('status') is-invalid @enderror"
+                                            id="status"
+                                            name="status"
                                             required>
                                         <option value="">Select Status</option>
                                         <option value="pending" {{ old('status', $task['status']) == 'pending' ? 'selected' : '' }}>Pending</option>
@@ -172,38 +181,63 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('editTaskForm');
-    const titleField = document.getElementById('title');
-    const priorityField = document.getElementById('priority');
-    const statusField = document.getElementById('status');
-    
-    form.addEventListener('submit', function(e) {
-        let isValid = true;
-        
-        [titleField, priorityField, statusField].forEach(field => {
-            field.classList.remove('is-invalid');
-        });
-        
-        if (!titleField.value.trim()) {
-            titleField.classList.add('is-invalid');
-            isValid = false;
-        }
-        
-        if (!priorityField.value) {
-            priorityField.classList.add('is-invalid');
-            isValid = false;
-        }
-        
-        if (!statusField.value) {
-            statusField.classList.add('is-invalid');
-            isValid = false;
-        }
-        
-        if (!isValid) {
+    const submitBtn = form.querySelector('button[type="submit"]');
+    let submitted = false;
+    // Unique token for this form instance
+    const formToken = document.getElementById('form_token').value;
+    // Check if this token was already used in this session
+    if (sessionStorage.getItem('submitted_' + formToken)) {
+        form.addEventListener('submit', function(e) {
             e.preventDefault();
             return false;
-        }
-    });
-    
+        });
+        submitBtn.disabled = true;
+    } else {
+        form.addEventListener('submit', function(e) {
+            if (submitted) {
+                e.preventDefault();
+                return false;
+            }
+            submitted = true;
+            sessionStorage.setItem('submitted_' + formToken, '1');
+            submitBtn.disabled = true;
+            const titleField = document.getElementById('title');
+            const priorityField = document.getElementById('priority');
+            const statusField = document.getElementById('status');
+            const userIdField = document.getElementById('user_id');
+            [titleField, priorityField, statusField].forEach(field => {
+                field.classList.remove('is-invalid');
+            });
+            if (!titleField.value.trim()) {
+                titleField.classList.add('is-invalid');
+                submitted = false;
+                submitBtn.disabled = false;
+                sessionStorage.removeItem('submitted_' + formToken);
+            }
+            if (!priorityField.value) {
+                priorityField.classList.add('is-invalid');
+                submitted = false;
+                submitBtn.disabled = false;
+                sessionStorage.removeItem('submitted_' + formToken);
+            }
+            if (!statusField.value) {
+                statusField.classList.add('is-invalid');
+                submitted = false;
+                submitBtn.disabled = false;
+                sessionStorage.removeItem('submitted_' + formToken);
+            }
+            if (userIdField && !userIdField.value) {
+                userIdField.classList.add('is-invalid');
+                submitted = false;
+                submitBtn.disabled = false;
+                sessionStorage.removeItem('submitted_' + formToken);
+            }
+            if (!submitted) {
+                e.preventDefault();
+            }
+        });
+    }
+    // Remove invalid class on input
     [titleField, priorityField, statusField].forEach(field => {
         field.addEventListener('input', function() {
             if (this.classList.contains('is-invalid')) {
@@ -213,4 +247,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-@endpush 
+@endpush

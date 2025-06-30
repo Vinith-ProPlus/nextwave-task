@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'NextWave Task Management')</title>
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Custom CSS -->
     <style>
         :root {
@@ -121,17 +121,6 @@
             color: #6b7280;
         }
 
-        .fade-in {
-            transform: translateY(20px);
-            animation: fadeInUp 0.8s ease forwards;
-        }
-
-        @keyframes fadeInUp {
-            to {
-                transform: translateY(0);
-            }
-        }
-
         .alert {
             border-radius: 10px;
             border: none;
@@ -161,17 +150,17 @@
             body {
                 padding: 10px;
             }
-            
+
             .card-body {
                 padding: 1.5rem;
             }
-            
+
             .card-header {
                 padding: 1.5rem 1rem 1rem;
             }
         }
     </style>
-    
+
     @stack('styles')
 </head>
 <body>
@@ -207,32 +196,17 @@
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- GSAP -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    
-    <!-- Custom JS -->
+
+    <!-- Auto-hide alerts after 5 seconds -->
     <script>
-        // GSAP Animations
-        document.addEventListener('DOMContentLoaded', function() {
-            // Fade in animations
-            gsap.from('.fade-in', {
-                duration: 0.8,
-                y: 30,
-                stagger: 0.2,
-                ease: 'power2.out'
-            });
-        });
-        
-        // Auto-hide alerts after 5 seconds
         setTimeout(function() {
             $('.alert').fadeOut('slow');
         }, 5000);
     </script>
-    
+
     @stack('scripts')
 </body>
-</html> 
+</html>

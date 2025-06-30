@@ -15,12 +15,12 @@
                     <p class="text-muted mb-0">View task information and details</p>
                 </div>
                 <div>
-                    <a href="{{ route('tasks.edit', $task['id']) }}" class="btn btn-warning me-2">
-                        <i class="fas fa-edit me-2"></i>Edit Task
-                    </a>
-                    <a href="{{ route('tasks.index') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-2"></i>Back to Tasks
-                    </a>
+                    <a href="{{ route('tasks.edit', $task['id']) }}" class="btn btn-primary btn-sm">Edit</a>
+                    <form method="POST" action="{{ route('tasks.destroy', $task['id']) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this task?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -28,7 +28,7 @@
 
     <div class="row">
         <!-- Task Information -->
-        <div class="col-md-8">
+        <div class="col-md-12">
             <div class="card fade-in">
                 <div class="card-header">
                     <h5 class="mb-0">
@@ -187,95 +187,30 @@
                 </div>
             </div>
         </div>
-
-        <!-- Task Assignment & Actions -->
-        <div class="col-md-4">
-            <!-- Quick Actions -->
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-bolt me-2"></i>Quick Actions
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        @if($task['status'] !== 'completed')
-                            <button type="button" class="btn btn-success" onclick="updateTaskStatus('{{ route('tasks.update-status', $task['id']) }}', 'completed')">
-                                <i class="fas fa-check me-1"></i>Mark as Completed
-                            </button>
-                        @endif
-                        @if($task['status'] === 'pending')
-                            <button type="button" class="btn btn-info" onclick="updateTaskStatus('{{ route('tasks.update-status', $task['id']) }}', 'in_progress')">
-                                <i class="fas fa-play me-1"></i>Start Task
-                            </button>
-                        @endif
-                        @if($task['status'] === 'in_progress')
-                            <button type="button" class="btn btn-warning" onclick="updateTaskStatus('{{ route('tasks.update-status', $task['id']) }}', 'pending')">
-                                <i class="fas fa-pause me-1"></i>Pause Task
-                            </button>
-                        @endif
-                        @if($task['status'] !== 'cancelled' && $task['status'] !== 'completed')
-                            <button type="button" class="btn btn-secondary" onclick="updateTaskStatus('{{ route('tasks.update-status', $task['id']) }}', 'cancelled')">
-                                <i class="fas fa-ban me-1"></i>Cancel Task
-                            </button>
-                        @endif
-                        <button type="button" class="btn btn-danger" onclick="confirmDelete('{{ route('tasks.destroy', $task['id']) }}', 'Delete Task', 'Are you sure you want to delete this task? This action cannot be undone.')">
-                            <i class="fas fa-trash me-1"></i>Delete Task
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 @endsection
 
-@push('scripts')
-<script>
-function updateTaskStatus(url, status) {
-    const statusLabels = {
-        'pending': 'Pending',
-        'in_progress': 'In Progress',
-        'completed': 'Completed',
-        'cancelled': 'Cancelled'
-    };
-
-    Swal.fire({
-        title: 'Update Task Status',
-        text: `Are you sure you want to mark this task as "${statusLabels[status]}"?`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, update it!',
-        cancelButtonText: 'Cancel'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            showLoading();
-            $.ajax({
-                url: url,
-                type: 'PATCH',
-                data: { status: status },
-                success: function(response) {
-                    hideLoading();
-                    Toast.fire({
-                        icon: 'success',
-                        title: 'Task status updated successfully!'
-                    });
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                },
-                error: function(xhr) {
-                    hideLoading();
-                    Toast.fire({
-                        icon: 'error',
-                        title: 'Error updating task status'
-                    });
-                }
-            });
-        }
-    });
-}
-</script>
-@endpush
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+@if($errors->any() && !request()->has('status-updated'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <ul class="mb-0">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif

@@ -7,7 +7,7 @@
     <!-- Welcome Section -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card fade-in">
+            <div class="card">
                 <div class="card-body text-center">
                     <h1 class="display-6 mb-2">
                         <i class="fas fa-rocket me-2 text-primary"></i>
@@ -24,7 +24,7 @@
     <!-- Statistics Cards -->
     <div class="row mb-4">
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card stats-card slide-in-left">
+            <div class="card">
                 <div class="card-body text-center">
                     <div class="d-flex align-items-center justify-content-center mb-3">
                         <div class="bg-primary bg-gradient rounded-circle p-3 me-3">
@@ -40,7 +40,7 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card stats-card slide-in-left" style="animation-delay: 0.1s;">
+            <div class="card">
                 <div class="card-body text-center">
                     <div class="d-flex align-items-center justify-content-center mb-3">
                         <div class="bg-success bg-gradient rounded-circle p-3 me-3">
@@ -56,7 +56,7 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card stats-card slide-in-left" style="animation-delay: 0.2s;">
+            <div class="card">
                 <div class="card-body text-center">
                     <div class="d-flex align-items-center justify-content-center mb-3">
                         <div class="bg-warning bg-gradient rounded-circle p-3 me-3">
@@ -72,7 +72,7 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card stats-card slide-in-left" style="animation-delay: 0.3s;">
+            <div class="card">
                 <div class="card-body text-center">
                     <div class="d-flex align-items-center justify-content-center mb-3">
                         <div class="bg-info bg-gradient rounded-circle p-3 me-3">
@@ -92,7 +92,7 @@
     <div class="row">
         <!-- Recent Tasks -->
         <div class="col-lg-6 mb-4">
-            <div class="card slide-in-right">
+            <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-tasks me-2"></i>Recent Tasks
@@ -160,7 +160,7 @@
 
         <!-- Recent Users -->
         <div class="col-lg-6 mb-4">
-            <div class="card slide-in-right" style="animation-delay: 0.1s;">
+            <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-users me-2"></i>Recent Users
@@ -224,7 +224,7 @@
     <!-- Quick Actions -->
     <div class="row">
         <div class="col-12">
-            <div class="card fade-in" style="animation-delay: 0.4s;">
+            <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-bolt me-2"></i>Quick Actions
@@ -268,12 +268,12 @@
         border: 1px solid rgba(255, 255, 255, 0.2);
         transition: all 0.3s ease;
     }
-    
+
     .stats-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
     }
-    
+
     .status-pending { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
     .status-in_progress { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
     .status-completed { background: linear-gradient(135deg, #10b981, #059669); }
@@ -284,4 +284,4 @@
     .priority-high { background: linear-gradient(135deg, #ef4444, #dc2626); }
     .priority-urgent { background: linear-gradient(135deg, #7c3aed, #5b21b6); }
 </style>
-@endpush 
+@endpush

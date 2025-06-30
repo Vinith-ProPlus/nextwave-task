@@ -22,7 +22,7 @@
 
     <div class="row">
         <div class="col-12">
-            <div class="card fade-in">
+            <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-edit me-2"></i>Task Details
@@ -221,10 +221,6 @@ $(document).ready(function() {
 
 @push('styles')
 <style>
-.fade-in, .slide-in-left, .slide-in-right {
-    transform: none !important;
-}
-
 .form-label {
     font-weight: 600;
     color: #495057;

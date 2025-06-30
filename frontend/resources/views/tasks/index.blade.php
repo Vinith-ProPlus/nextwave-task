@@ -24,16 +24,16 @@
     <!-- Filters -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card fade-in">
+            <div class="card">
                 <div class="card-body">
                     <form method="GET" action="{{ route('tasks.index') }}" class="row g-3">
                         <div class="col-md-3">
                             <label for="search" class="form-label">Search</label>
-                            <input type="text" 
-                                   class="form-control" 
-                                   id="search" 
-                                   name="search" 
-                                   value="{{ request('search') }}" 
+                            <input type="text"
+                                   class="form-control"
+                                   id="search"
+                                   name="search"
+                                   value="{{ request('search') }}"
                                    placeholder="Search tasks...">
                         </div>
                         <div class="col-md-2">
@@ -90,7 +90,7 @@
     <!-- Tasks Table -->
     <div class="row">
         <div class="col-12">
-            <div class="card slide-in-right">
+            <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-table me-2"></i>Tasks List
@@ -169,18 +169,18 @@
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                                <a href="{{ route('tasks.show', $task['id']) }}" 
-                                                   class="btn btn-sm btn-outline-primary" 
+                                                <a href="{{ route('tasks.show', $task['id']) }}"
+                                                   class="btn btn-sm btn-outline-primary"
                                                    title="View">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                <a href="{{ route('tasks.edit', $task['id']) }}" 
-                                                   class="btn btn-sm btn-outline-warning" 
+                                                <a href="{{ route('tasks.edit', $task['id']) }}"
+                                                   class="btn btn-sm btn-outline-warning"
                                                    title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <button type="button" 
-                                                        class="btn btn-sm btn-outline-danger" 
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-danger"
                                                         title="Delete"
                                                         onclick="confirmDelete('{{ route('tasks.destroy', $task['id']) }}', 'Delete Task', 'Are you sure you want to delete this task? This action cannot be undone.')">
                                                     <i class="fas fa-trash"></i>
@@ -208,13 +208,13 @@
                                             </a>
                                         </li>
                                     @endif
-                                    
+
                                     @for($i = max(1, $pagination['current_page'] - 2); $i <= min($pagination['last_page'], $pagination['current_page'] + 2); $i++)
                                         <li class="page-item {{ $i == $pagination['current_page'] ? 'active' : '' }}">
                                             <a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $i]) }}">{{ $i }}</a>
                                         </li>
                                     @endfor
-                                    
+
                                     @if($pagination['current_page'] < $pagination['last_page'])
                                         <li class="page-item">
                                             <a class="page-link" href="{{ request()->fullUrlWithQuery(['page' => $pagination['current_page'] + 1]) }}">
@@ -286,4 +286,4 @@
         });
     });
 </script>
-@endpush 
+@endpush
