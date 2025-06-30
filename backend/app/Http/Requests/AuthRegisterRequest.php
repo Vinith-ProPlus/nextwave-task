@@ -56,3 +56,4 @@ class AuthRegisterRequest extends Request
         return true;
     }
 }
+ 

@@ -23,7 +23,7 @@ class UserFilterRequest extends Request
             'sort_by' => 'nullable|in:id,name,email,created_at,updated_at',
             'sort_order' => 'nullable|in:asc,desc',
             'page' => 'nullable|integer|min:1',
-            'per_page' => 'nullable|integer|min:1|max:100',
+            'per_page' => 'nullable|integer|min:1',
         ];
     }
 
@@ -46,8 +46,7 @@ class UserFilterRequest extends Request
             'page.integer' => 'The page must be an integer.',
             'page.min' => 'The page must be at least 1.',
             'per_page.integer' => 'The per page must be an integer.',
-            'per_page.min' => 'The per page must be at least 1.',
-            'per_page.max' => 'The per page may not be greater than 100.',
+            'per_page.min' => 'The per page must be at least 1.'
         ];
     }
 

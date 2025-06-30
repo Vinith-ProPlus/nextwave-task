@@ -30,4 +30,10 @@ Route::middleware('auth')->group(function () {
     // Tasks Management
     Route::resource('tasks', TaskController::class);
     Route::patch('/tasks/{task}/status', [TaskController::class, 'updateStatus'])->name('tasks.update-status');
+
+    // Profile
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+    Route::get('/profile/edit', [UserController::class, 'profileEdit'])->name('profile.edit');
+    Route::post('/profile/update', [UserController::class, 'profileUpdate'])->name('profile.update');
+    Route::post('/profile/change-password', [UserController::class, 'changePassword'])->name('profile.change-password');
 });

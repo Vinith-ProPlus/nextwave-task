@@ -22,16 +22,12 @@ class DashboardController extends Controller
                 return redirect()->route('login');
             }
 
-            // Get user profile
             $profile = $this->apiService->getProfile();
-            
-            // Get recent tasks
+
             $recentTasks = $this->apiService->getTasks(['per_page' => 5, 'sort_by' => 'created_at', 'sort_order' => 'desc']);
-            
-            // Get recent users
+     
             $recentUsers = $this->apiService->getUsers(['per_page' => 5, 'sort_by' => 'created_at', 'sort_order' => 'desc']);
 
-            // Calculate statistics
             $allTasks = $this->apiService->getTasks(['per_page' => 1000]);
             $allUsers = $this->apiService->getUsers(['per_page' => 1000]);
 

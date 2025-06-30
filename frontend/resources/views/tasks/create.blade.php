@@ -4,7 +4,6 @@
 
 @section('content')
 <div class="container-fluid">
-    <!-- Header -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
@@ -21,7 +20,6 @@
         </div>
     </div>
 
-    <!-- Create Task Form -->
     <div class="row">
         <div class="col-12">
             <div class="card fade-in">
@@ -31,21 +29,23 @@
                     </h5>
                 </div>
                 <div class="card-body">
+                    @if(isset($users) && count($users) === 0)
+                        <div class="alert alert-warning">No users available to assign. Please add users first.</div>
+                    @endif
                     <form method="POST" action="{{ route('tasks.store') }}" id="createTaskForm">
                         @csrf
-                        
+
                         <div class="row">
-                            <!-- Title -->
                             <div class="col-md-8">
                                 <div class="mb-3">
                                     <label for="title" class="form-label">
                                         <i class="fas fa-heading me-1"></i>Task Title <span class="text-danger">*</span>
                                     </label>
-                                    <input type="text" 
-                                           class="form-control @error('title') is-invalid @enderror" 
-                                           id="title" 
-                                           name="title" 
-                                           value="{{ old('title') }}" 
+                                    <input type="text"
+                                           class="form-control @error('title') is-invalid @enderror"
+                                           id="title"
+                                           name="title"
+                                           value="{{ old('title') }}"
                                            placeholder="Enter task title"
                                            required>
                                     @error('title')
@@ -54,15 +54,14 @@
                                 </div>
                             </div>
 
-                            <!-- Priority -->
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="priority" class="form-label">
                                         <i class="fas fa-flag me-1"></i>Priority <span class="text-danger">*</span>
                                     </label>
-                                    <select class="form-select @error('priority') is-invalid @enderror" 
-                                            id="priority" 
-                                            name="priority" 
+                                    <select class="form-select @error('priority') is-invalid @enderror"
+                                            id="priority"
+                                            name="priority"
                                             required>
                                         <option value="">Select Priority</option>
                                         <option value="low" {{ old('priority') == 'low' ? 'selected' : '' }}>Low</option>
@@ -77,15 +76,14 @@
                             </div>
                         </div>
 
-                        <!-- Description -->
                         <div class="mb-3">
                             <label for="description" class="form-label">
                                 <i class="fas fa-align-left me-1"></i>Description
                             </label>
-                            <textarea class="form-control @error('description') is-invalid @enderror" 
-                                      id="description" 
-                                      name="description" 
-                                      rows="4" 
+                            <textarea class="form-control @error('description') is-invalid @enderror"
+                                      id="description"
+                                      name="description"
+                                      rows="4"
                                       placeholder="Enter task description">{{ old('description') }}</textarea>
                             @error('description')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -93,15 +91,13 @@
                         </div>
 
                         <div class="row">
-                            <!-- Assigned User -->
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="user_id" class="form-label">
                                         <i class="fas fa-user me-1"></i>Assign To
                                     </label>
-                                    <select class="form-select select2 @error('user_id') is-invalid @enderror" 
-                                            id="user_id" 
-                                            name="user_id">
+                                    <select class="form-select select2 @error('user_id') is-invalid @enderror"
+                                            id="user_id" name="user_id" required>
                                         <option value="">Select User</option>
                                         @if(isset($users) && count($users) > 0)
                                             @foreach($users as $user)
@@ -109,6 +105,8 @@
                                                     {{ $user['name'] }} ({{ $user['email'] }})
                                                 </option>
                                             @endforeach
+                                        @else
+                                            <option value="" disabled>No users available</option>
                                         @endif
                                     </select>
                                     @error('user_id')
@@ -117,17 +115,17 @@
                                 </div>
                             </div>
 
-                            <!-- Due Date -->
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="due_date" class="form-label">
                                         <i class="fas fa-calendar me-1"></i>Due Date
                                     </label>
-                                    <input type="datetime-local" 
-                                           class="form-control @error('due_date') is-invalid @enderror" 
-                                           id="due_date" 
-                                           name="due_date" 
-                                           value="{{ old('due_date') }}">
+                                    <input type="datetime-local"
+                                           class="form-control @error('due_date') is-invalid @enderror"
+                                           id="due_date"
+                                           name="due_date"
+                                           value="{{ old('due_date') }}"
+                                           min="{{ \Carbon\Carbon::now()->format('Y-m-d\TH:i') }}" required>
                                     @error('due_date')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -135,14 +133,13 @@
                             </div>
                         </div>
 
-                        <!-- Status -->
                         <div class="mb-3">
                             <label for="status" class="form-label">
                                 <i class="fas fa-tasks me-1"></i>Status <span class="text-danger">*</span>
                             </label>
-                            <select class="form-select @error('status') is-invalid @enderror" 
-                                    id="status" 
-                                    name="status" 
+                            <select class="form-select @error('status') is-invalid @enderror"
+                                    id="status"
+                                    name="status"
                                     required>
                                 <option value="">Select Status</option>
                                 <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>Pending</option>
@@ -155,7 +152,6 @@
                             @enderror
                         </div>
 
-                        <!-- Form Actions -->
                         <div class="d-flex justify-content-end gap-2">
                             <a href="{{ route('tasks.index') }}" class="btn btn-secondary">
                                 <i class="fas fa-times me-2"></i>Cancel
@@ -174,14 +170,13 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Form validation
     const form = document.getElementById('createTaskForm');
-    
+
     form.addEventListener('submit', function(e) {
         const title = document.getElementById('title').value.trim();
         const priority = document.getElementById('priority').value;
         const status = document.getElementById('status').value;
-        
+
         if (!title) {
             e.preventDefault();
             Swal.fire({
@@ -191,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             return false;
         }
-        
+
         if (!priority) {
             e.preventDefault();
             Swal.fire({
@@ -201,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             return false;
         }
-        
+
         if (!status) {
             e.preventDefault();
             Swal.fire({
@@ -226,7 +221,6 @@ $(document).ready(function() {
 
 @push('styles')
 <style>
-/* Remove any opacity rules */
 .fade-in, .slide-in-left, .slide-in-right {
     transform: none !important;
 }
@@ -269,16 +263,16 @@ $(document).ready(function() {
     .container-fluid {
         padding: 1rem;
     }
-    
+
     .btn {
         width: 100%;
         margin-bottom: 0.5rem;
     }
-    
+
     .d-flex.justify-content-end {
         flex-direction: column;
     }
 }
 </style>
 @endpush
-@endsection 
+@endsection

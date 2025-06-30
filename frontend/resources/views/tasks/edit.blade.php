@@ -4,7 +4,6 @@
 
 @section('content')
 <div class="container-fluid">
-    <!-- Header -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
@@ -21,7 +20,6 @@
         </div>
     </div>
 
-    <!-- Edit Task Form -->
     <div class="row">
         <div class="col-12">
             <div class="card fade-in">
@@ -31,12 +29,14 @@
                     </h5>
                 </div>
                 <div class="card-body">
+                    @if(isset($users) && count($users) === 0)
+                        <div class="alert alert-warning">No users available to assign. Please add users first.</div>
+                    @endif
                     <form method="POST" action="{{ route('tasks.update', $task['id']) }}" id="editTaskForm">
                         @csrf
                         @method('PUT')
                         
                         <div class="row">
-                            <!-- Title -->
                             <div class="col-md-8">
                                 <div class="mb-3">
                                     <label for="title" class="form-label">
@@ -55,7 +55,6 @@
                                 </div>
                             </div>
 
-                            <!-- Priority -->
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="priority" class="form-label">
@@ -78,7 +77,6 @@
                             </div>
                         </div>
 
-                        <!-- Description -->
                         <div class="mb-3">
                             <label for="description" class="form-label">
                                 <i class="fas fa-align-left me-1"></i>Description
@@ -94,22 +92,21 @@
                         </div>
 
                         <div class="row">
-                            <!-- Assigned User -->
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="user_id" class="form-label">
                                         <i class="fas fa-user me-1"></i>Assigned To
                                     </label>
-                                    <select class="form-select @error('user_id') is-invalid @enderror" 
-                                            id="user_id" 
-                                            name="user_id">
-                                        <option value="">Unassigned</option>
-                                        @foreach($users as $user)
-                                            <option value="{{ $user['id'] }}" 
-                                                    {{ old('user_id', $task['user_id']) == $user['id'] ? 'selected' : '' }}>
-                                                {{ $user['name'] }} ({{ $user['email'] }})
-                                            </option>
-                                        @endforeach
+                                    <select class="form-select select2 @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
+                                        @if(isset($users) && count($users) > 0)
+                                            @foreach($users as $user)
+                                                <option value="{{ $user['id'] }}" {{ old('user_id', $task['user_id']) == $user['id'] ? 'selected' : '' }}>
+                                                    {{ $user['name'] }} ({{ $user['email'] }})
+                                                </option>
+                                            @endforeach
+                                        @else
+                                            <option value="" disabled>No users available</option>
+                                        @endif
                                     </select>
                                     @error('user_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -117,7 +114,6 @@
                                 </div>
                             </div>
 
-                            <!-- Due Date -->
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="due_date" class="form-label">
@@ -134,7 +130,6 @@
                                 </div>
                             </div>
 
-                            <!-- Status -->
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="status" class="form-label">
@@ -157,7 +152,6 @@
                             </div>
                         </div>
 
-                        <!-- Form Actions -->
                         <div class="d-flex justify-content-end gap-2">
                             <a href="{{ route('tasks.show', $task['id']) }}" class="btn btn-secondary">
                                 <i class="fas fa-times me-2"></i>Cancel
@@ -177,7 +171,6 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Form validation
     const form = document.getElementById('editTaskForm');
     const titleField = document.getElementById('title');
     const priorityField = document.getElementById('priority');
@@ -186,24 +179,20 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         let isValid = true;
         
-        // Clear previous validation
         [titleField, priorityField, statusField].forEach(field => {
             field.classList.remove('is-invalid');
         });
         
-        // Validate title
         if (!titleField.value.trim()) {
             titleField.classList.add('is-invalid');
             isValid = false;
         }
         
-        // Validate priority
         if (!priorityField.value) {
             priorityField.classList.add('is-invalid');
             isValid = false;
         }
         
-        // Validate status
         if (!statusField.value) {
             statusField.classList.add('is-invalid');
             isValid = false;
@@ -215,7 +204,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Clear validation on input
     [titleField, priorityField, statusField].forEach(field => {
         field.addEventListener('input', function() {
             if (this.classList.contains('is-invalid')) {

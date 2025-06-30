@@ -190,37 +190,6 @@
 
         <!-- Task Assignment & Actions -->
         <div class="col-md-4">
-            <div class="card slide-in-right">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-users me-2"></i>Assignment
-                    </h5>
-                </div>
-                <div class="card-body">
-                    @if(isset($task['user']) && $task['user'])
-                        <div class="text-center mb-4">
-                            <div class="bg-primary bg-gradient rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                                <span class="text-white fw-bold fs-4">{{ strtoupper(substr($task['user']['name'], 0, 1)) }}</span>
-                            </div>
-                            <h5 class="mb-1">{{ $task['user']['name'] }}</h5>
-                            <p class="text-muted mb-0">{{ $task['user']['email'] }}</p>
-                            <a href="{{ route('users.show', $task['user']['id']) }}" class="btn btn-sm btn-outline-primary mt-2">
-                                <i class="fas fa-eye me-1"></i>View Profile
-                            </a>
-                        </div>
-                    @else
-                        <div class="text-center py-4">
-                            <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Unassigned</h5>
-                            <p class="text-muted">This task is not assigned to anyone.</p>
-                            <a href="{{ route('tasks.edit', $task['id']) }}" class="btn btn-primary">
-                                <i class="fas fa-user-plus me-1"></i>Assign Task
-                            </a>
-                        </div>
-                    @endif
-                </div>
-            </div>
-
             <!-- Quick Actions -->
             <div class="card mt-3">
                 <div class="card-header">
@@ -231,40 +200,26 @@
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         @if($task['status'] !== 'completed')
-                            <button type="button" 
-                                    class="btn btn-success" 
-                                    onclick="updateTaskStatus('{{ route('tasks.update-status', $task['id']) }}', 'completed')">
+                            <button type="button" class="btn btn-success" onclick="updateTaskStatus('{{ route('tasks.update-status', $task['id']) }}', 'completed')">
                                 <i class="fas fa-check me-1"></i>Mark as Completed
                             </button>
                         @endif
-                        
                         @if($task['status'] === 'pending')
-                            <button type="button" 
-                                    class="btn btn-info" 
-                                    onclick="updateTaskStatus('{{ route('tasks.update-status', $task['id']) }}', 'in_progress')">
+                            <button type="button" class="btn btn-info" onclick="updateTaskStatus('{{ route('tasks.update-status', $task['id']) }}', 'in_progress')">
                                 <i class="fas fa-play me-1"></i>Start Task
                             </button>
                         @endif
-                        
                         @if($task['status'] === 'in_progress')
-                            <button type="button" 
-                                    class="btn btn-warning" 
-                                    onclick="updateTaskStatus('{{ route('tasks.update-status', $task['id']) }}', 'pending')">
+                            <button type="button" class="btn btn-warning" onclick="updateTaskStatus('{{ route('tasks.update-status', $task['id']) }}', 'pending')">
                                 <i class="fas fa-pause me-1"></i>Pause Task
                             </button>
                         @endif
-                        
-                        @if($task['status'] !== 'cancelled')
-                            <button type="button" 
-                                    class="btn btn-secondary" 
-                                    onclick="updateTaskStatus('{{ route('tasks.update-status', $task['id']) }}', 'cancelled')">
+                        @if($task['status'] !== 'cancelled' && $task['status'] !== 'completed')
+                            <button type="button" class="btn btn-secondary" onclick="updateTaskStatus('{{ route('tasks.update-status', $task['id']) }}', 'cancelled')">
                                 <i class="fas fa-ban me-1"></i>Cancel Task
                             </button>
                         @endif
-                        
-                        <button type="button" 
-                                class="btn btn-danger" 
-                                onclick="confirmDelete('{{ route('tasks.destroy', $task['id']) }}', 'Delete Task', 'Are you sure you want to delete this task? This action cannot be undone.')">
+                        <button type="button" class="btn btn-danger" onclick="confirmDelete('{{ route('tasks.destroy', $task['id']) }}', 'Delete Task', 'Are you sure you want to delete this task? This action cannot be undone.')">
                             <i class="fas fa-trash me-1"></i>Delete Task
                         </button>
                     </div>
@@ -284,7 +239,7 @@ function updateTaskStatus(url, status) {
         'completed': 'Completed',
         'cancelled': 'Cancelled'
     };
-    
+
     Swal.fire({
         title: 'Update Task Status',
         text: `Are you sure you want to mark this task as "${statusLabels[status]}"?`,
@@ -323,4 +278,4 @@ function updateTaskStatus(url, status) {
     });
 }
 </script>
-@endpush 
+@endpush

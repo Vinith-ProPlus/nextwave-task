@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Services\ApiService;
-use App\Services\TokenExpiredException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Services\TokenExpiredException;
 use Illuminate\Support\Facades\Validator;
 
 class TaskController extends Controller
@@ -27,7 +28,7 @@ class TaskController extends Controller
             if (!$result['success']) {
                 return redirect()->back()->with('error', $result['message']);
             }
-            $usersResult = $this->apiService->getUsers(['per_page' => 1000]);
+            $usersResult = $this->apiService->getUsers(['per_page' => 100000]);
             $users = $usersResult['success'] ? $usersResult['data']['data'] : [];
             return view('tasks.index', [
                 'tasks' => $result['data']['data'],
@@ -60,23 +61,6 @@ class TaskController extends Controller
         try {
             if (!$this->apiService->isAuthenticated()) {
                 return redirect()->route('login');
-            }
-            $validator = Validator::make($request->all(), [
-                'title' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'priority' => 'required|in:low,medium,high,urgent',
-                'status' => 'required|in:pending,in_progress,completed,cancelled',
-                'user_id' => 'nullable|exists:users,id',
-                'due_date' => 'nullable|date',
-            ], [
-                'title.required' => 'Title is required',
-                'priority.required' => 'Priority is required',
-                'status.required' => 'Status is required',
-            ]);
-            if ($validator->fails()) {
-                return redirect()->back()
-                    ->withErrors($validator)
-                    ->withInput();
             }
             $result = $this->apiService->createTask($request->all());
             if ($result['success']) {
@@ -127,8 +111,9 @@ class TaskController extends Controller
                 return redirect()->route('tasks.index')
                     ->with('error', $result['message'] ?? 'Task not found');
             }
-            $usersResult = $this->apiService->getUsers(['per_page' => 1000]);
+            $usersResult = $this->apiService->getUsers(['per_page' => 100000]);
             $users = $usersResult['success'] ? $usersResult['data']['data'] : [];
+            Log::error("Users: " . json_encode($users));
             return view('tasks.edit', [
                 'task' => $result['data'],
                 'users' => $users
@@ -143,28 +128,6 @@ class TaskController extends Controller
         try {
             if (!$this->apiService->isAuthenticated()) {
                 return redirect()->route('login');
-            }
-            $validator = Validator::make($request->all(), [
-                'title' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'status' => 'required|in:pending,in_progress,completed,cancelled',
-                'priority' => 'required|in:low,medium,high,urgent',
-                'due_date' => 'nullable|date|after:today',
-                'user_id' => 'nullable|integer',
-            ], [
-                'title.required' => 'Title is required',
-                'title.max' => 'Title cannot exceed 255 characters',
-                'status.required' => 'Status is required',
-                'status.in' => 'Invalid status selected',
-                'priority.required' => 'Priority is required',
-                'priority.in' => 'Invalid priority selected',
-                'due_date.after' => 'Due date must be a future date',
-                'user_id.integer' => 'Invalid user selected',
-            ]);
-            if ($validator->fails()) {
-                return redirect()->back()
-                    ->withErrors($validator)
-                    ->withInput();
             }
             $result = $this->apiService->updateTask($id, [
                 'title' => $request->title,

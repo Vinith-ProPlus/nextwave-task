@@ -56,25 +56,6 @@ class UserController extends Controller
             if (!$this->apiService->isAuthenticated()) {
                 return redirect()->route('login');
             }
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|max:255',
-                'password' => 'required|string|min:8',
-                'is_active' => 'boolean',
-            ], [
-                'name.required' => 'Name is required',
-                'name.max' => 'Name cannot exceed 255 characters',
-                'email.required' => 'Email is required',
-                'email.email' => 'Please enter a valid email address',
-                'email.max' => 'Email cannot exceed 255 characters',
-                'password.required' => 'Password is required',
-                'password.min' => 'Password must be at least 8 characters',
-            ]);
-            if ($validator->fails()) {
-                return redirect()->back()
-                    ->withErrors($validator)
-                    ->withInput($request->except('password'));
-            }
             $result = $this->apiService->createUser([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -146,24 +127,6 @@ class UserController extends Controller
             if (!$this->apiService->isAuthenticated()) {
                 return redirect()->route('login');
             }
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|max:255',
-                'password' => 'nullable|string|min:8',
-                'is_active' => 'boolean',
-            ], [
-                'name.required' => 'Name is required',
-                'name.max' => 'Name cannot exceed 255 characters',
-                'email.required' => 'Email is required',
-                'email.email' => 'Please enter a valid email address',
-                'email.max' => 'Email cannot exceed 255 characters',
-                'password.min' => 'Password must be at least 8 characters',
-            ]);
-            if ($validator->fails()) {
-                return redirect()->back()
-                    ->withErrors($validator)
-                    ->withInput($request->except('password'));
-            }
             $userData = [
                 'name' => $request->name,
                 'email' => $request->email,
@@ -206,6 +169,106 @@ class UserController extends Controller
             }
             return redirect()->route('users.index')
                 ->with('error', $result['message'] ?? 'Failed to delete user');
+        } catch (TokenExpiredException $e) {
+            return redirect()->route('login')->with('error', 'Session expired, please log in again.');
+        }
+    }
+
+    // View current user's profile
+    public function profile()
+    {
+        try {
+            if (!$this->apiService->isAuthenticated()) {
+                return redirect()->route('login');
+            }
+            $userId = auth()->user()->id;
+            $result = $this->apiService->getUser($userId);
+            if (!$result['success']) {
+                return redirect()->route('dashboard')->with('error', $result['message'] ?? 'User not found');
+            }
+            return view('users.profile', ['user' => $result['data']]);
+        } catch (TokenExpiredException $e) {
+            return redirect()->route('login')->with('error', 'Session expired, please log in again.');
+        }
+    }
+
+    // Show edit form for current user's profile
+    public function profileEdit()
+    {
+        try {
+            if (!$this->apiService->isAuthenticated()) {
+                return redirect()->route('login');
+            }
+            $userId = auth()->user()->id;
+            $result = $this->apiService->getUser($userId);
+            if (!$result['success']) {
+                return redirect()->route('profile')->with('error', $result['message'] ?? 'User not found');
+            }
+            return view('users.profile_edit', ['user' => $result['data']]);
+        } catch (TokenExpiredException $e) {
+            return redirect()->route('login')->with('error', 'Session expired, please log in again.');
+        }
+    }
+
+    // Update current user's profile
+    public function profileUpdate(Request $request)
+    {
+        try {
+            if (!$this->apiService->isAuthenticated()) {
+                return redirect()->route('login');
+            }
+            $userId = auth()->user()->id;
+            $userData = [
+                'name' => $request->name,
+                'email' => $request->email,
+            ];
+            $result = $this->apiService->updateUser($userId, $userData);
+            if ($result['success']) {
+                return redirect()->route('profile')->with('success', 'Profile updated successfully!');
+            }
+            $errors = [];
+            if (isset($result['errors'])) {
+                foreach ($result['errors'] as $field => $fieldErrors) {
+                    $errors[$field] = is_array($fieldErrors) ? $fieldErrors[0] : $fieldErrors;
+                }
+            } else {
+                $errors['email'] = $result['message'] ?? 'Failed to update profile';
+            }
+            return redirect()->back()->withErrors($errors)->withInput();
+        } catch (TokenExpiredException $e) {
+            return redirect()->route('login')->with('error', 'Session expired, please log in again.');
+        }
+    }
+
+    // Change current user's password
+    public function changePassword(Request $request)
+    {
+        try {
+            if (!$this->apiService->isAuthenticated()) {
+                return redirect()->route('login');
+            }
+            $userId = auth()->user()->id;
+            $validator = Validator::make($request->all(), [
+                'password' => 'required|string|min:6|confirmed',
+            ]);
+            if ($validator->fails()) {
+                return redirect()->back()->withErrors($validator)->withInput();
+            }
+            $result = $this->apiService->updateUser($userId, [
+                'password' => $request->password,
+            ]);
+            if ($result['success']) {
+                return redirect()->route('profile')->with('success', 'Password changed successfully!');
+            }
+            $errors = [];
+            if (isset($result['errors'])) {
+                foreach ($result['errors'] as $field => $fieldErrors) {
+                    $errors[$field] = is_array($fieldErrors) ? $fieldErrors[0] : $fieldErrors;
+                }
+            } else {
+                $errors['password'] = $result['message'] ?? 'Failed to change password';
+            }
+            return redirect()->back()->withErrors($errors)->withInput();
         } catch (TokenExpiredException $e) {
             return redirect()->route('login')->with('error', 'Session expired, please log in again.');
         }

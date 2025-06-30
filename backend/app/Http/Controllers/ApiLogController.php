@@ -35,7 +35,7 @@ class ApiLogController extends Controller
                 'sort_by' => 'nullable|in:method,status_code,duration_ms,timestamp',
                 'sort_order' => 'nullable|in:asc,desc',
                 'page' => 'nullable|integer|min:1',
-                'per_page' => 'nullable|integer|min:1|max:100',
+                'per_page' => 'nullable|integer|min:1',
             ]);
 
             // Add custom validation for duration range

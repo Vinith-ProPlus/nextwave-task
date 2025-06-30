@@ -22,7 +22,6 @@ class UserController extends Controller
     public function index(Request $request)
     {
         try {
-            // Map start_date/end_date to created_at_from/created_at_to for compatibility
             $input = $request->all();
             $hasStart = isset($input['start_date']);
             $hasEnd = isset($input['end_date']);
@@ -34,7 +33,6 @@ class UserController extends Controller
             }
             $request->replace($input);
 
-            // Validate request parameters first
             $validator = Validator::make($request->all(), [
                 'search' => 'nullable|string|max:255',
                 'is_active' => 'nullable|in:true,false,1,0,yes,no,on,off',
@@ -43,10 +41,9 @@ class UserController extends Controller
                 'sort_by' => 'nullable|in:name,email,created_at',
                 'sort_order' => 'nullable|in:asc,desc',
                 'page' => 'nullable|integer|min:1',
-                'per_page' => 'nullable|integer|min:1|max:100',
+                'per_page' => 'nullable|integer|min:1',
             ]);
 
-            // Custom validation for date range
             $validator->after(function ($validator) use ($request, $hasStart, $hasEnd) {
                 if ($request->filled('created_at_from') && $request->filled('created_at_to')) {
                     if (strtotime($request->created_at_to) < strtotime($request->created_at_from)) {

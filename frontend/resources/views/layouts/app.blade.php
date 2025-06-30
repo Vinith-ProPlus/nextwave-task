@@ -5,23 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'NextWave Task Management')</title>
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
-    
+
     <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    
+
     <!-- Custom CSS -->
     <style>
         body {
@@ -122,10 +122,10 @@
             transform: none !important;
         }
     </style>
-    
+
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    
+
     @stack('styles')
 </head>
 <body>
@@ -151,16 +151,27 @@
                 <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
                     Users
                 </a>
+                <a class="nav-link {{ request()->routeIs('apilog.*') ? 'active' : '' }}" href="{{ url('/apilog') }}">
+                    API Log
+                </a>
                 @if(auth()->check())
-                    <span class="user-greeting">
-                        <i class="fas fa-user-circle"></i> {{ auth()->user()->name ?? 'User' }}
-                    </span>
-                    <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-                        @csrf
-                        <button type="submit" class="logout-btn">
-                            <i class="fas fa-sign-out-alt"></i> Logout
+                    <div class="dropdown ms-3">
+                        <button class="btn btn-secondary dropdown-toggle d-flex align-items-center" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: #fff; color: #222; border: none;">
+                            <span class="profile-initial d-inline-block text-uppercase me-2" style="background: #007bff; color: #fff; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold;">
+                                {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+                            </span>
                         </button>
-                    </form>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                            <li><a class="dropdown-item" href="{{ route('profile') }}"><i class="fas fa-user me-2"></i>Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
                 @endif
             </div>
         </nav>
@@ -200,28 +211,28 @@
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
-    
+
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+
     <!-- GSAP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    
+
     <!-- Custom JS -->
     <script>
         // GSAP Animations
         gsap.registerPlugin(ScrollTrigger);
-        
+
         // Initialize animations when page loads
         document.addEventListener('DOMContentLoaded', function() {
             // Fade in animations
@@ -231,7 +242,7 @@
                 stagger: 0.2,
                 ease: 'power2.out'
             });
-            
+
             // Slide in animations
             gsap.from('.slide-in-left', {
                 duration: 0.8,
@@ -239,14 +250,14 @@
                 stagger: 0.1,
                 ease: 'power2.out'
             });
-            
+
             gsap.from('.slide-in-right', {
                 duration: 0.8,
                 x: 50,
                 stagger: 0.1,
                 ease: 'power2.out'
             });
-            
+
             // Smooth scrolling
             gsap.to('html, body', {
                 duration: 1,
@@ -254,7 +265,7 @@
                 ease: 'power2.out'
             });
         });
-        
+
         // SweetAlert Configuration
         const Toast = Swal.mixin({
             toast: true,
@@ -263,23 +274,23 @@
             timer: 3000,
             timerProgressBar: true
         });
-        
+
         // Global AJAX Setup
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-        
+
         // Loading Spinner
         function showLoading() {
             $('.loading-spinner').show();
         }
-        
+
         function hideLoading() {
             $('.loading-spinner').hide();
         }
-        
+
         // DataTables Configuration
         function initializeDataTable(selector, options = {}) {
             const defaultOptions = {
@@ -302,10 +313,10 @@
                 pageLength: 10,
                 order: [[0, 'desc']]
             };
-            
+
             return $(selector).DataTable({...defaultOptions, ...options});
         }
-        
+
         // Delete Confirmation
         function confirmDelete(url, title = 'Are you sure?', text = 'This action cannot be undone.') {
             return Swal.fire({
@@ -344,7 +355,7 @@
                 }
             });
         }
-        
+
         // Status Update
         function updateStatus(url, status) {
             showLoading();
@@ -371,16 +382,16 @@
                 }
             });
         }
-        
+
         // Auto-hide alerts after 5 seconds
         setTimeout(function() {
             $('.alert').fadeOut('slow');
         }, 5000);
     </script>
-    
+
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    
+
     @stack('scripts')
 </body>
-</html> 
+</html>

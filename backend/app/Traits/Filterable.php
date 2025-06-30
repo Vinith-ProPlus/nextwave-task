@@ -276,7 +276,7 @@ trait Filterable
         $rules = [
             'search' => 'nullable|string|max:255',
             'sort_order' => 'nullable|string|in:asc,desc',
-            'per_page' => 'nullable|integer|min:1|max:100',
+            'per_page' => 'nullable|integer|min:1',
         ];
 
         // Add sort_by validation

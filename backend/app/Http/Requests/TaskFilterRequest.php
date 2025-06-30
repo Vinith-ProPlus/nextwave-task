@@ -29,7 +29,7 @@ class TaskFilterRequest extends Request
             'sort_by' => 'nullable|in:id,title,status,priority,due_date,created_at,updated_at',
             'sort_order' => 'nullable|in:asc,desc',
             'page' => 'nullable|integer|min:1',
-            'per_page' => 'nullable|integer|min:1|max:100',
+            'per_page' => 'nullable|integer|min:1',
         ];
     }
 
@@ -60,7 +60,6 @@ class TaskFilterRequest extends Request
             'page.min' => 'The page must be at least 1.',
             'per_page.integer' => 'The per page must be an integer.',
             'per_page.min' => 'The per page must be at least 1.',
-            'per_page.max' => 'The per page may not be greater than 100.',
         ];
     }
 

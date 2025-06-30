@@ -50,14 +50,7 @@ class AuthController extends Controller
                 ->withInput($request->except('password'));
         }
 
-        Log::info("Login attempt", [
-            'email' => $request->email,
-            'backend_url' => env('BACKEND_API_URL', 'http://localhost:8000/api')
-        ]);
-
         $result = $this->apiService->login($request->email, $request->password);
-
-        Log::info("Login result", $result);
 
         if ($result['success']) {
             return redirect()->route('dashboard')
@@ -71,33 +64,6 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'password' => 'required|string|min:8|confirmed',
-        ], [
-            'name.required' => 'Name is required',
-            'name.max' => 'Name cannot exceed 255 characters',
-            'email.required' => 'Email is required',
-            'email.email' => 'Please enter a valid email address',
-            'email.max' => 'Email cannot exceed 255 characters',
-            'password.required' => 'Password is required',
-            'password.min' => 'Password must be at least 8 characters',
-            'password.confirmed' => 'Password confirmation does not match',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput($request->except(['password', 'password_confirmation']));
-        }
-
-        Log::info("Registration attempt", [
-            'email' => $request->email,
-            'name' => $request->name,
-            'backend_url' => env('BACKEND_API_URL', 'http://localhost:8000/api')
-        ]);
-
         $result = $this->apiService->register([
             'name' => $request->name,
             'email' => $request->email,

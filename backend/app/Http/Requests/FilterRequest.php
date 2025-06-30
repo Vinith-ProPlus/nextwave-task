@@ -17,7 +17,7 @@ abstract class FilterRequest extends Request
             'search' => 'nullable|string|max:255',
             'sort_by' => 'nullable|string|in:' . implode(',', $this->getSortableFields()),
             'sort_order' => 'nullable|string|in:asc,desc',
-            'per_page' => 'nullable|integer|min:1|max:100',
+            'per_page' => 'nullable|integer|min:1',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
         ];
