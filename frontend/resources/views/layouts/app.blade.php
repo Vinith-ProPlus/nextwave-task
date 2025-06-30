@@ -24,214 +24,105 @@
     
     <!-- Custom CSS -->
     <style>
-        :root {
-            --primary-color: #6366f1;
-            --secondary-color: #8b5cf6;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --dark-color: #1f2937;
-            --light-color: #f8fafc;
-            --border-color: #e5e7eb;
-        }
-
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            color: #111;
             min-height: 100vh;
         }
-
         .main-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            margin: 20px;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin: 20px auto;
             min-height: calc(100vh - 40px);
+            max-width: 1200px;
+            color: #111;
         }
-
         .navbar {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 15px 15px 0 0;
+            background: #222;
+            color: #fff;
+            border-radius: 8px 8px 0 0;
             padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-
         .navbar-brand {
             font-weight: 700;
             font-size: 1.5rem;
-            color: white !important;
+            color: #fff !important;
         }
-
+        .navbar-nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
         .nav-link {
-            color: rgba(255, 255, 255, 0.9) !important;
+            color: #fff !important;
             font-weight: 500;
-            transition: all 0.3s ease;
-            border-radius: 8px;
-            padding: 0.5rem 1rem !important;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
         }
-
-        .nav-link:hover, .nav-link.active {
-            color: white !important;
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
+        .nav-link.active, .nav-link:hover {
+            background: #444;
         }
-
+        .logout-btn {
+            background: #dc3545;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1.2rem;
+            font-weight: 600;
+            margin-left: 1rem;
+            cursor: pointer;
+        }
+        .logout-btn:hover {
+            background: #b52a37;
+        }
         .content-wrapper {
             padding: 2rem;
         }
-
         .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
-
-        .card-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border-radius: 15px 15px 0 0 !important;
-            border: none;
-            padding: 1.5rem;
-        }
-
-        .btn {
-            border-radius: 10px;
-            font-weight: 600;
-            padding: 0.75rem 1.5rem;
-            transition: all 0.3s ease;
-            border: none;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, var(--success-color), #059669);
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg, var(--warning-color), #d97706);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, var(--danger-color), #dc2626);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .form-control, .form-select {
-            border-radius: 10px;
-            border: 2px solid var(--border-color);
-            padding: 0.75rem 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
-        }
-
-        .table {
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .table th {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border: none;
-            font-weight: 600;
-        }
-
-        .badge {
+            background: #fff;
+            border: 1px solid #bbb;
             border-radius: 8px;
-            padding: 0.5rem 0.75rem;
+            box-shadow: none;
+            margin-bottom: 1.5rem;
+            color: #111;
+        }
+        .card-header {
+            background: #eee;
+            color: #111;
+            border-radius: 8px 8px 0 0;
+            border-bottom: 1px solid #bbb;
+            padding: 1rem;
+        }
+        .btn {
+            border-radius: 6px;
             font-weight: 600;
+            padding: 0.5rem 1rem;
+            border: 1px solid #bbb;
+            background: #f4f4f4;
+            color: #111;
         }
-
-        .status-pending { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
-        .status-in_progress { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-        .status-completed { background: linear-gradient(135deg, #10b981, #059669); }
-        .status-cancelled { background: linear-gradient(135deg, #ef4444, #dc2626); }
-
-        .priority-low { background: linear-gradient(135deg, #6b7280, #4b5563); }
-        .priority-medium { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        .priority-high { background: linear-gradient(135deg, #ef4444, #dc2626); }
-        .priority-urgent { background: linear-gradient(135deg, #7c3aed, #5b21b6); }
-
-        .stats-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .loading-spinner {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .fade-in {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        .slide-in-left {
-            opacity: 0;
-            transform: translateX(-50px);
-        }
-
-        .slide-in-right {
-            opacity: 0;
-            transform: translateX(50px);
-        }
-
-        @media (max-width: 768px) {
-            .main-container {
-                margin: 10px;
-                border-radius: 15px;
-            }
-            
-            .content-wrapper {
-                padding: 1rem;
-            }
-            
-            .navbar {
-                padding: 1rem;
-            }
+        .btn-primary { background: #007bff; color: #fff; border-color: #007bff; }
+        .btn-secondary { background: #6c757d; color: #fff; border-color: #6c757d; }
+        .btn:hover { opacity: 0.9; }
+        .table { background: #fff; border: 1px solid #bbb; }
+        .table th { background: #eee; color: #111; }
+        .badge { background: #eee; color: #111; border-radius: 4px; padding: 0.25em 0.5em; }
+        .alert { border-radius: 6px; }
+        /* Animation classes now have no opacity or transform */
+        .fade-in, .slide-in-left, .slide-in-right {
+            opacity: 1 !important;
+            transform: none !important;
         }
     </style>
+    
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     
     @stack('styles')
 </head>
@@ -244,55 +135,31 @@
     <div class="main-container">
         @auth
         <!-- Navigation -->
-        <nav class="navbar navbar-expand-lg">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="{{ route('dashboard') }}">
-                    <i class="fas fa-rocket me-2"></i>NextWave
+        <nav class="navbar">
+            <div class="navbar-brand">
+                <i class="fas fa-rocket"></i> NextWave
+            </div>
+            <div class="navbar-nav">
+                <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
+                    Dashboard
                 </a>
-                
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
-                                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('tasks.*') ? 'active' : '' }}" href="{{ route('tasks.index') }}">
-                                <i class="fas fa-tasks me-1"></i>Tasks
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
-                                <i class="fas fa-users me-1"></i>Users
-                            </a>
-                        </li>
-                    </ul>
-                    
-                    <ul class="navbar-nav">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user-circle me-1"></i>{{ auth()->user()->name ?? 'User' }}
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ route('dashboard') }}">Profile</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="dropdown-item">
-                                            <i class="fas fa-sign-out-alt me-1"></i>Logout
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
+                <a class="nav-link {{ request()->routeIs('tasks.*') ? 'active' : '' }}" href="{{ route('tasks.index') }}">
+                    Tasks
+                </a>
+                <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
+                    Users
+                </a>
+                @if(auth()->check())
+                    <span class="user-greeting">
+                        <i class="fas fa-user-circle"></i> {{ auth()->user()->name ?? 'User' }}
+                    </span>
+                    <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+                        @csrf
+                        <button type="submit" class="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </form>
+                @endif
             </div>
         </nav>
         @endauth
@@ -511,6 +378,9 @@
             $('.alert').fadeOut('slow');
         }, 5000);
     </script>
+    
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     
     @stack('scripts')
 </body>

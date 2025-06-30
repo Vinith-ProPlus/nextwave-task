@@ -110,20 +110,28 @@ class ApiService
         } catch (RequestException $e) {
             $response = $e->getResponse();
             $errorBody = $response ? json_decode($response->getBody(), true) : null;
+            $status = $response ? $response->getStatusCode() : 500;
+            $message = $errorBody['message'] ?? '';
+            
+            // Token expired/invalid/unauthorized handling
+            if (in_array($status, [401, 403]) || stripos($message, 'token') !== false || stripos($message, 'unauthorized') !== false) {
+                $this->clearToken();
+                throw new TokenExpiredException($message ?: 'Session expired, please log in again.');
+            }
             
             Log::error("API request failed", [
                 'url' => $fullUrl,
                 'method' => $method,
-                'status_code' => $response ? $response->getStatusCode() : null,
+                'status_code' => $status,
                 'error' => $e->getMessage(),
                 'response' => $errorBody
             ]);
             
             return [
                 'success' => false,
-                'message' => $errorBody['message'] ?? 'API request failed',
+                'message' => $message ?: 'API request failed',
                 'errors' => $errorBody['errors'] ?? null,
-                'status_code' => $response ? $response->getStatusCode() : 500
+                'status_code' => $status
             ];
         } catch (\Exception $e) {
             Log::error("Network error", [
@@ -318,4 +326,6 @@ class ApiService
     {
         return !empty($this->token);
     }
-} 
+}
+
+class TokenExpiredException extends \Exception {} 
