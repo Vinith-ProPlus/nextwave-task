@@ -122,14 +122,12 @@
         }
 
         .fade-in {
-            opacity: 0;
             transform: translateY(20px);
             animation: fadeInUp 0.8s ease forwards;
         }
 
         @keyframes fadeInUp {
             to {
-                opacity: 1;
                 transform: translateY(0);
             }
         }
@@ -223,7 +221,6 @@
             // Fade in animations
             gsap.from('.fade-in', {
                 duration: 0.8,
-                opacity: 0,
                 y: 30,
                 stagger: 0.2,
                 ease: 'power2.out'

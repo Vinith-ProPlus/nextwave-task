@@ -109,14 +109,16 @@
         }
         .btn-primary { background: #007bff; color: #fff; border-color: #007bff; }
         .btn-secondary { background: #6c757d; color: #fff; border-color: #6c757d; }
-        .btn:hover { opacity: 0.9; }
+        .btn:hover {
+            /* opacity: 0.9; */
+        }
         .table { background: #fff; border: 1px solid #bbb; }
         .table th { background: #eee; color: #111; }
         .badge { background: #eee; color: #111; border-radius: 4px; padding: 0.25em 0.5em; }
         .alert { border-radius: 6px; }
         /* Animation classes now have no opacity or transform */
         .fade-in, .slide-in-left, .slide-in-right {
-            opacity: 1 !important;
+            /* opacity: 1 !important; */
             transform: none !important;
         }
     </style>
@@ -225,7 +227,6 @@
             // Fade in animations
             gsap.from('.fade-in', {
                 duration: 0.8,
-                opacity: 0,
                 y: 30,
                 stagger: 0.2,
                 ease: 'power2.out'
@@ -234,7 +235,6 @@
             // Slide in animations
             gsap.from('.slide-in-left', {
                 duration: 0.8,
-                opacity: 0,
                 x: -50,
                 stagger: 0.1,
                 ease: 'power2.out'
@@ -242,7 +242,6 @@
             
             gsap.from('.slide-in-right', {
                 duration: 0.8,
-                opacity: 0,
                 x: 50,
                 stagger: 0.1,
                 ease: 'power2.out'

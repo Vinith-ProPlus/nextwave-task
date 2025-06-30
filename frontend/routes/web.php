@@ -26,7 +26,6 @@ Route::middleware('auth')->group(function () {
 
     // Users Management
     Route::resource('users', UserController::class);
-    Route::get('/users/{user}/tasks', [UserController::class, 'show'])->name('users.show');
 
     // Tasks Management
     Route::resource('tasks', TaskController::class);

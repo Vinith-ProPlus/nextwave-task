@@ -228,7 +228,6 @@ $(document).ready(function() {
 <style>
 /* Remove any opacity rules */
 .fade-in, .slide-in-left, .slide-in-right {
-    opacity: 1 !important;
     transform: none !important;
 }
 
