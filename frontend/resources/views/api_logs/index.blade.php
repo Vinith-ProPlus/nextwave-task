@@ -47,13 +47,9 @@
                             <tfoot>
                                 <tr>
                                     <th></th>
-                                    <th>
-                                        <input type="text" class="form-control form-control-sm" placeholder="Filter Method">
-                                    </th>
                                     <th></th>
-                                    <th>
-                                        <input type="text" class="form-control form-control-sm" placeholder="Filter Status">
-                                    </th>
+                                    <th></th>
+                                    <th></th>
                                     <th></th>
                                     <th></th>
                                     <th></th>
@@ -116,14 +112,7 @@
             ]
         });
 
-        // Apply column-specific search
-        $('#apiLogsTable tfoot input').on('keyup change', function () {
-            var columnIndex = $(this).closest('th').index();
-            table
-                .column(columnIndex)
-                .search(this.value)
-                .draw();
-        });
+
     });
 </script>
 @endpush

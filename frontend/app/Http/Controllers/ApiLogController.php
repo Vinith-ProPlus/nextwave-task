@@ -123,7 +123,7 @@ class ApiLogController extends Controller
                     '<span class="badge bg-' . $this->getStatusColor($log['status_code']) . '">' . $log['status_code'] . '</span>',
                     '<span class="badge bg-' . $this->getDurationColor($log['duration_ms']) . '">' . number_format($log['duration_ms'], 2) . 'ms</span>',
                     '<code>' . $log['ip'] . '</code>',
-                    '<span title="' . \Carbon\Carbon::parse($log['timestamp'])->format('F d, Y \a\t g:i:s A') . '">' . \Carbon\Carbon::parse($log['timestamp'])->diffForHumans() . '</span>',
+                    '<span>' . \Carbon\Carbon::parse($log['timestamp'])->format('Y-m-d H:i:s') . '</span>',
                     '<div class="btn-group" role="group">
                         <a href="' . route('api_logs.show', $log['id']) . '" class="btn btn-sm btn-outline-primary" title="View Details">
                             <i class="fas fa-eye"></i>
