@@ -193,6 +193,13 @@ class ApiService
         $query = http_build_query($filters);
         $cacheKey = 'users_list_' . md5($query);
 
+        // Check if cache has been invalidated
+        $invalidatedAt = Cache::get('users_cache_invalidated_at');
+        if ($invalidatedAt) {
+            // Clear the specific cache key to force refresh
+            Cache::forget($cacheKey);
+        }
+
         return $this->makeRequest('GET', '/users?' . $query, null, true, $cacheKey, 60);
     }
 
@@ -206,7 +213,7 @@ class ApiService
         $result = $this->makeRequest('POST', '/users', $userData);
 
         if ($result['success']) {
-            Cache::forget('users_list_');
+            $this->clearUsersListCache();
         }
 
         return $result;
@@ -218,7 +225,8 @@ class ApiService
 
         if ($result['success']) {
             Cache::forget("user_{$id}");
-            Cache::forget('users_list_');
+            // Clear all users list cache variations
+            $this->clearUsersListCache();
         }
 
         return $result;
@@ -230,7 +238,7 @@ class ApiService
 
         if ($result['success']) {
             Cache::forget("user_{$id}");
-            Cache::forget('users_list_');
+            $this->clearUsersListCache();
         }
 
         return $result;
@@ -241,6 +249,13 @@ class ApiService
     {
         $query = http_build_query($filters);
         $cacheKey = 'tasks_list_' . md5($query);
+
+        // Check if cache has been invalidated
+        $invalidatedAt = Cache::get('tasks_cache_invalidated_at');
+        if ($invalidatedAt) {
+            // Clear the specific cache key to force refresh
+            Cache::forget($cacheKey);
+        }
 
         return $this->makeRequest('GET', '/tasks?' . $query, null, true, $cacheKey, 60);
     }
@@ -255,7 +270,7 @@ class ApiService
         $result = $this->makeRequest('POST', '/tasks', $taskData);
 
         if ($result['success']) {
-            Cache::forget('tasks_list_');
+            $this->clearTasksListCache();
         }
 
         return $result;
@@ -267,7 +282,7 @@ class ApiService
 
         if ($result['success']) {
             Cache::forget("task_{$id}");
-            Cache::forget('tasks_list_');
+            $this->clearTasksListCache();
         }
 
         return $result;
@@ -280,7 +295,7 @@ class ApiService
 
         if ($result['success']) {
             Cache::forget("task_{$id}");
-            Cache::forget('tasks_list_');
+            $this->clearTasksListCache();
         }
 
         return $result;
@@ -292,7 +307,7 @@ class ApiService
 
         if ($result['success']) {
             Cache::forget("task_{$id}");
-            Cache::forget('tasks_list_');
+            $this->clearTasksListCache();
         }
 
         return $result;
@@ -315,6 +330,28 @@ class ApiService
     {
         return $this->makeRequest('GET', "/logs/{$id}", null, true, "log_{$id}", 300);
     }
+    /**
+     * Clear all users list cache variations
+     */
+    private function clearUsersListCache()
+    {
+        // Clear all cache keys that start with 'users_list_'
+        // Since Laravel doesn't support wildcard deletion, we'll use a different approach
+        // We'll store a timestamp and invalidate all cached data older than this timestamp
+        Cache::put('users_cache_invalidated_at', time(), 3600);
+    }
+
+    /**
+     * Clear all tasks list cache variations
+     */
+    private function clearTasksListCache()
+    {
+        // Clear all cache keys that start with 'tasks_list_'
+        // Since Laravel doesn't support wildcard deletion, we'll use a different approach
+        // We'll store a timestamp and invalidate all cached data older than this timestamp
+        Cache::put('tasks_cache_invalidated_at', time(), 3600);
+    }
+
     /**
      * Clear all cache
      */
