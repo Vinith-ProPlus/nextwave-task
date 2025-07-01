@@ -105,6 +105,7 @@
                                         <th>ID</th>
                                         <th>Title</th>
                                         <th>Assigned To</th>
+                                        <th>Assigned By</th>
                                         <th>Status</th>
                                         <th>Priority</th>
                                         <th>Due Date</th>
@@ -134,6 +135,18 @@
                                                 </div>
                                             @else
                                                 <span class="text-muted">Unassigned</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if(isset($task['assigned_by']) && $task['assigned_by'])
+                                                <div class="d-flex align-items-center">
+                                                    <div class="bg-success bg-gradient rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
+                                                        <span class="text-white fw-bold small">{{ strtoupper(substr($task['assigned_by']['name'], 0, 1)) }}</span>
+                                                    </div>
+                                                    <span>{{ $task['assigned_by']['name'] }}</span>
+                                                </div>
+                                            @else
+                                                <span class="text-muted">System</span>
                                             @endif
                                         </td>
                                         <td>

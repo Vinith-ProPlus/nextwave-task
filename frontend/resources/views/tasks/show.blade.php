@@ -143,6 +143,50 @@
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold">
+                                <i class="fas fa-user me-1"></i>Assigned To
+                            </label>
+                            <div class="mb-0">
+                                @if(isset($task['user']) && $task['user'])
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary bg-gradient rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                            <span class="text-white fw-bold">{{ strtoupper(substr($task['user']['name'], 0, 1)) }}</span>
+                                        </div>
+                                        <div>
+                                            <span class="fw-bold">{{ $task['user']['name'] }}</span>
+                                            <br>
+                                            <small class="text-muted">{{ $task['user']['email'] }}</small>
+                                        </div>
+                                    </div>
+                                @else
+                                    <span class="text-muted">Unassigned</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-user-plus me-1"></i>Assigned By
+                            </label>
+                            <div class="mb-0">
+                                @if(isset($task['assigned_by']) && $task['assigned_by'])
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-success bg-gradient rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                            <span class="text-white fw-bold">{{ strtoupper(substr($task['assigned_by']['name'], 0, 1)) }}</span>
+                                        </div>
+                                        <div>
+                                            <span class="fw-bold">{{ $task['assigned_by']['name'] }}</span>
+                                            <br>
+                                            <small class="text-muted">{{ $task['assigned_by']['email'] }}</small>
+                                        </div>
+                                    </div>
+                                @else
+                                    <span class="text-muted">System</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
                                 <i class="fas fa-calendar-plus me-1"></i>Created
                             </label>
                             <p class="mb-0">

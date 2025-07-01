@@ -37,6 +37,9 @@ class TaskController extends Controller
             $searchableFields = ['title', 'description'];
             $sortableFields = ['title', 'status', 'priority', 'due_date', 'created_at'];
 
+            // Load user relationships
+            $query->with(['user', 'assignedBy']);
+
             // Apply filters, sorting, and pagination
             $result = $this->applyFilters(
                 $query,
@@ -114,7 +117,7 @@ class TaskController extends Controller
     public function show($id)
     {
         try {
-            $task = Task::find($id);
+            $task = Task::with(['user', 'assignedBy'])->find($id);
 
             if (!$task) {
                 return $this->notFoundResponse('Task not found');
@@ -259,7 +262,8 @@ class TaskController extends Controller
                 return $this->notFoundResponse('User not found');
             }
 
-            $tasks = Task::where('user_id', $userId)
+            $tasks = Task::with(['user', 'assignedBy'])
+                ->where('user_id', $userId)
                 ->orWhere('assigned_by', $userId)
                 ->orderBy('created_at', 'desc')
                 ->get();

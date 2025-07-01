@@ -38,14 +38,6 @@
                         <input type="hidden" name="form_token" id="form_token" value="{{ uniqid('task_', true) }}">
 
                         <div class="row">
-                            <div class="col-12 mb-3">
-                                <div class="alert alert-info">
-                                    <strong>Note:</strong> To quickly change only the status (pause, start, complete, cancel), use the quick action buttons on the task details page. This form is for editing all task details.
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
                             <div class="col-md-8">
                                 <div class="mb-3">
                                     <label for="title" class="form-label">
