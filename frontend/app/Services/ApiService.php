@@ -180,6 +180,13 @@ class ApiService
         return $this->makeRequest('GET', '/me', null, true, 'user_profile_' . $this->token, 300);
     }
 
+    public function getProfileFresh()
+    {
+        // Force fresh profile data by clearing cache first
+        $this->clearProfileCache();
+        return $this->makeRequest('GET', '/me', null, false, null, 0); // No caching
+    }
+
     public function logout()
     {
         $this->clearToken();
@@ -227,6 +234,11 @@ class ApiService
             Cache::forget("user_{$id}");
             // Clear all users list cache variations
             $this->clearUsersListCache();
+
+            // Clear profile cache if this is the current user
+            if ($this->token) {
+                Cache::forget('user_profile_' . $this->token);
+            }
         }
 
         return $result;
@@ -350,6 +362,16 @@ class ApiService
         // Since Laravel doesn't support wildcard deletion, we'll use a different approach
         // We'll store a timestamp and invalidate all cached data older than this timestamp
         Cache::put('tasks_cache_invalidated_at', time(), 3600);
+    }
+
+    /**
+     * Clear current user's profile cache
+     */
+    public function clearProfileCache()
+    {
+        if ($this->token) {
+            Cache::forget('user_profile_' . $this->token);
+        }
     }
 
     /**

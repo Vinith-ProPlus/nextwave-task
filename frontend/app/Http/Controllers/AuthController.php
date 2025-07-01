@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\ApiService;
+use App\Services\TokenExpiredException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
@@ -50,45 +51,70 @@ class AuthController extends Controller
                 ->withInput($request->except('password'));
         }
 
-        $result = $this->apiService->login($request->email, $request->password);
+        try {
+            $result = $this->apiService->login($request->email, $request->password);
 
-        if ($result['success']) {
-            return redirect()->route('dashboard')
-                ->with('success', 'Welcome back! You have been successfully logged in.');
+            if ($result['success']) {
+                return redirect()->route('dashboard')
+                    ->with('success', 'Welcome back! You have been successfully logged in.');
+            }
+
+            return redirect()->back()
+                ->withErrors(['email' => $result['message'] ?? 'Invalid credentials'])
+                ->withInput($request->except('password'));
+        } catch (TokenExpiredException $e) {
+            // Handle token expired exception (which includes invalid credentials)
+            return redirect()->back()
+                ->withErrors(['email' => 'Invalid credentials. Please check your email and password.'])
+                ->withInput($request->except('password'));
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Log::error('Login error: ' . $e->getMessage());
+            return redirect()->back()
+                ->withErrors(['email' => 'An error occurred during login. Please try again.'])
+                ->withInput($request->except('password'));
         }
-
-        return redirect()->back()
-            ->withErrors(['email' => $result['message'] ?? 'Invalid credentials'])
-            ->withInput($request->except('password'));
     }
 
     public function register(Request $request)
     {
-        $result = $this->apiService->register([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password,
-        ]);
+        try {
+            $result = $this->apiService->register([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => $request->password,
+                'password_confirmation' => $request->password_confirmation,
+            ]);
 
-        Log::info("Registration result", $result);
+            Log::info("Registration result", $result);
 
-        if ($result['success']) {
-            return redirect()->route('dashboard')
-                ->with('success', 'Account created successfully! Welcome to NextWave Task Management.');
-        }
-
-        $errors = [];
-        if (isset($result['errors'])) {
-            foreach ($result['errors'] as $field => $fieldErrors) {
-                $errors[$field] = is_array($fieldErrors) ? $fieldErrors[0] : $fieldErrors;
+            if ($result['success']) {
+                return redirect()->route('dashboard')
+                    ->with('success', 'Account created successfully! Welcome to NextWave Task Management.');
             }
-        } else {
-            $errors['email'] = $result['message'] ?? 'Registration failed';
-        }
 
-        return redirect()->back()
-            ->withErrors($errors)
-            ->withInput($request->except(['password', 'password_confirmation']));
+            $errors = [];
+            if (isset($result['errors'])) {
+                foreach ($result['errors'] as $field => $fieldErrors) {
+                    $errors[$field] = is_array($fieldErrors) ? $fieldErrors[0] : $fieldErrors;
+                }
+            } else {
+                $errors['email'] = $result['message'] ?? 'Registration failed';
+            }
+
+            return redirect()->back()
+                ->withErrors($errors)
+                ->withInput($request->except(['password', 'password_confirmation']));
+        } catch (TokenExpiredException $e) {
+            return redirect()->back()
+                ->withErrors(['email' => 'Registration failed. Please try again.'])
+                ->withInput($request->except(['password', 'password_confirmation']));
+        } catch (\Exception $e) {
+            Log::error('Registration error: ' . $e->getMessage());
+            return redirect()->back()
+                ->withErrors(['email' => 'An error occurred during registration. Please try again.'])
+                ->withInput($request->except(['password', 'password_confirmation']));
+        }
     }
 
     public function logout()

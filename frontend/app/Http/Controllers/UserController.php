@@ -201,11 +201,13 @@ class UserController extends Controller
             if (!$this->apiService->isAuthenticated()) {
                 return redirect()->route('login');
             }
-            $userId = auth()->user()->id;
-            $result = $this->apiService->getUser($userId);
+
+            // Get current user profile from API
+            $result = $this->apiService->getProfile();
             if (!$result['success']) {
-                return redirect()->route('profile')->with('error', $result['message'] ?? 'User not found');
+                return redirect()->route('profile')->with('error', $result['message'] ?? 'Failed to load profile');
             }
+
             return view('users.profile_edit', ['user' => $result['data']]);
         } catch (TokenExpiredException $e) {
             return redirect()->route('login')->with('error', 'Session expired, please log in again.');
@@ -219,13 +221,25 @@ class UserController extends Controller
             if (!$this->apiService->isAuthenticated()) {
                 return redirect()->route('login');
             }
-            $userId = auth()->user()->id;
+
+            // Get current user profile first to get the user ID
+            $profileResult = $this->apiService->getProfile();
+            if (!$profileResult['success']) {
+                return redirect()->route('profile')->with('error', 'Failed to load profile');
+            }
+
+            $userId = $profileResult['data']['id'];
             $userData = [
                 'name' => $request->name,
                 'email' => $request->email,
             ];
+
             $result = $this->apiService->updateUser($userId, $userData);
             if ($result['success']) {
+                // Clear profile cache to ensure fresh data
+                $this->apiService->clearProfileCache();
+                // Force refresh the profile data in the session
+                $freshProfile = $this->apiService->getProfileFresh();
                 return redirect()->route('profile')->with('success', 'Profile updated successfully!');
             }
             $errors = [];
@@ -249,7 +263,14 @@ class UserController extends Controller
             if (!$this->apiService->isAuthenticated()) {
                 return redirect()->route('login');
             }
-            $userId = auth()->user()->id;
+
+            // Get current user profile first to get the user ID
+            $profileResult = $this->apiService->getProfile();
+            if (!$profileResult['success']) {
+                return redirect()->route('profile')->with('error', 'Failed to load profile');
+            }
+
+            $userId = $profileResult['data']['id'];
             $validator = Validator::make($request->all(), [
                 'password' => 'required|string|min:6|confirmed',
             ]);
@@ -260,6 +281,8 @@ class UserController extends Controller
                 'password' => $request->password,
             ]);
             if ($result['success']) {
+                // Clear profile cache to ensure fresh data
+                $this->apiService->clearProfileCache();
                 return redirect()->route('profile')->with('success', 'Password changed successfully!');
             }
             $errors = [];
