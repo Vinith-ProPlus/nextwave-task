@@ -307,11 +307,14 @@ class ApiService
     public function getApiLogs($filters = [])
     {
         $query = http_build_query($filters);
-        $cacheKey = 'api_logs_' . md5($query);
-
-        return $this->makeRequest('GET', '/logs?' . $query, null, true, $cacheKey, 30);
+        $cacheKey = 'logs_list_' . md5($query);
+        return $this->makeRequest('GET', '/logs?' . $query, null, true, $cacheKey, 60);
     }
 
+    public function getApiLog($id)
+    {
+        return $this->makeRequest('GET', "/logs/{$id}", null, true, "log_{$id}", 300);
+    }
     /**
      * Clear all cache
      */

@@ -130,10 +130,9 @@
     </div>
 
     <div class="main-container">
-        @if(Auth::check())
-        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
             <div class="container-fluid">
-                <a class="navbar-brand fw-bold" href="/">Project Name</a>
+                <a class="navbar-brand fw-bold" href="/">{{ env('APP_NAME', 'Project Name') }}</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -146,32 +145,18 @@
                             <a class="nav-link" href="{{ route('tasks.index') }}">Manage Tasks</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url('/api-logs') }}">API Logs</a>
+                            <a class="nav-link" href="{{ route('api_logs.index') }}">API Logs</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav ms-auto">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1.2rem;">
-                                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                                </span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                                <li><a class="dropdown-item" href="{{ route('users.edit', Auth::user()->id) }}">Profile</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form method="POST" action="{{ route('logout') }}">
-                                        @csrf
-                                        <button type="submit" class="dropdown-item">Logout</button>
-                                    </form>
-                                </li>
-                            </ul>
+                        <!-- If session-based auth is restored, put profile dropdown here -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('login') }}">Login</a>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
-        @endif
 
         <!-- Main Content -->
         <div class="content-wrapper">

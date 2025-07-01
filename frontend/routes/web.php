@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ApiLogController;
 use Illuminate\Support\Facades\Route;
 
 // Authentication Routes
@@ -36,4 +37,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/edit', [UserController::class, 'profileEdit'])->name('profile.edit');
     Route::post('/profile/update', [UserController::class, 'profileUpdate'])->name('profile.update');
     Route::post('/profile/change-password', [UserController::class, 'changePassword'])->name('profile.change-password');
+
+    // API Logs
+    Route::get('/api-logs', [ApiLogController::class, 'index'])->name('api_logs.index');
+    Route::get('/api-logs/{id}', [ApiLogController::class, 'show'])->name('api_logs.show');
 });
