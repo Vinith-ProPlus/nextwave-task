@@ -89,7 +89,7 @@
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <a href="{{ route('users.index') }}" class="btn btn-secondary">
+                            <a href="javascript:window.history.back()" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left me-1"></i>Back to Users
                             </a>
                             <button type="submit" class="btn btn-primary">

@@ -34,13 +34,11 @@ class TaskController extends Controller
                 'due_date_to' => ['type' => 'date_range', 'end_field' => 'due_date', 'operator' => '<='],
             ];
 
-            $searchableFields = ['title', 'description'];
-            $sortableFields = ['id', 'title', 'status', 'priority', 'due_date', 'created_at'];
+            $searchableFields = ['title', 'description', 'status', 'priority', 'due_date'];
+            $sortableFields = ['id', 'user_id', 'assigned_by', 'title', 'description', 'status', 'priority', 'due_date', 'completed_at', 'created_at'];
 
-            // Load user relationships
             $query->with(['user', 'assignedBy']);
 
-            // Apply filters, sorting, and pagination
             $result = $this->applyFilters(
                 $query,
                 $request,

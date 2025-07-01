@@ -21,6 +21,9 @@
                         @method('DELETE')
                         <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                     </form>
+                    <a href="javascript:window.history.back()" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Tasks
+                    </a>
                 </div>
             </div>
         </div>

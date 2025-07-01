@@ -18,7 +18,7 @@
                     <a href="{{ route('users.edit', $user['id']) }}" class="btn btn-warning me-2">
                         <i class="fas fa-edit me-2"></i>Edit User
                     </a>
-                    <a href="{{ route('users.index') }}" class="btn btn-secondary">
+                    <a href="javascript:window.history.back()" class="btn btn-secondary">
                         <i class="fas fa-arrow-left me-2"></i>Back to Users
                     </a>
                 </div>

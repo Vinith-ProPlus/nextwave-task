@@ -38,7 +38,7 @@ class UserController extends Controller
                 'is_active' => 'nullable|in:true,false,1,0,yes,no,on,off',
                 'created_at_from' => 'nullable|date',
                 'created_at_to' => 'nullable|date',
-                'sort_by' => 'nullable|in:id,name,email,created_at',
+                'sort_by' => 'nullable|in:id,name,email,is_active,created_at',
                 'sort_order' => 'nullable|in:asc,desc',
                 'page' => 'nullable|integer|min:1',
                 'per_page' => 'nullable|integer|min:1',
@@ -61,10 +61,8 @@ class UserController extends Controller
 
             $query = User::query();
 
-            // Define filters configuration
             $filters = [
                 'is_active' => ['type' => 'boolean'],
-                // Support both start_date/end_date and created_at_from/created_at_to
                 'created_at_from' => ['type' => 'date_range', 'start_field' => 'created_at', 'operator' => '>='],
                 'created_at_to' => ['type' => 'date_range', 'end_field' => 'created_at', 'operator' => '<='],
                 'start_date' => ['type' => 'date_range', 'start_field' => 'created_at', 'operator' => '>='],
@@ -72,9 +70,8 @@ class UserController extends Controller
             ];
 
             $searchableFields = ['name', 'email'];
-            $sortableFields = ['name', 'email', 'created_at'];
+            $sortableFields = ['id', 'name', 'email', 'is_active', 'created_at'];
 
-            // Apply filters, sorting, and pagination
             $result = $this->applyFilters(
                 $query,
                 $request,
