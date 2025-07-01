@@ -264,7 +264,6 @@ class TaskController extends Controller
 
             $tasks = Task::with(['user', 'assignedBy'])
                 ->where('user_id', $userId)
-                ->orWhere('assigned_by', $userId)
                 ->orderBy('created_at', 'desc')
                 ->get();
 
