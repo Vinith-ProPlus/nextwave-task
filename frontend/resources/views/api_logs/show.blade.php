@@ -14,7 +14,7 @@
                     </h2>
                     <p class="text-muted mb-0">Detailed information about API request #{{ $log['id'] }}</p>
                 </div>
-                <a href="{{ route('api_logs.index') }}" class="btn btn-secondary">
+                <a href="javascript:window.history.back()" class="btn btn-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Back to Logs
                 </a>
             </div>
