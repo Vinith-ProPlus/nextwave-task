@@ -22,17 +22,88 @@ class UserController extends Controller
             if (!$this->apiService->isAuthenticated()) {
                 return redirect()->route('login');
             }
-            $filters = $request->only(['search', 'is_active', 'sort_by', 'sort_order', 'page', 'per_page']);
-            $result = $this->apiService->getUsers($filters);
-            if (!$result['success']) {
-                return redirect()->back()->with('error', $result['message']);
+
+            // DataTables AJAX request
+            if ($request->ajax() && $request->has('draw')) {
+                $draw = $request->input('draw');
+                $start = $request->input('start', 0);
+                $length = $request->input('length', 10);
+                $search = $request->input('search.value', '');
+                $order = $request->input('order.0', []);
+
+                $filters = [
+                    'page' => ($start / $length) + 1,
+                    'per_page' => $length,
+                ];
+                if ($search) {
+                    $filters['search'] = $search;
+                }
+
+                // Handle sorting
+                $columns = $request->input('columns', []);
+                if (!empty($order)) {
+                    $columnIndex = $order['column'];
+                    $columnDirection = $order['dir'];
+                    $sortMap = [
+                        0 => 'created_at',
+                        1 => 'name',
+                        2 => 'email',
+                        3 => 'is_active',
+                        4 => 'created_at',
+                    ];
+                    if (isset($sortMap[$columnIndex])) {
+                        $filters['sort_by'] = $sortMap[$columnIndex];
+                        $filters['sort_order'] = $columnDirection;
+                    }
+                }
+
+                $result = $this->apiService->getUsers($filters);
+                if (!$result['success']) {
+                    return response()->json([
+                        'draw' => $draw,
+                        'recordsTotal' => 0,
+                        'recordsFiltered' => 0,
+                        'data' => [],
+                        'error' => $result['message']
+                    ]);
+                }
+                $data = $result['data']['data'];
+                $pagination = $result['data']['pagination'];
+
+                // Format data for DataTables
+                $formattedData = [];
+                foreach ($data as $user) {
+                    $formattedData[] = [
+                        $user['id'],
+                        '<div class="d-flex align-items-center">'
+                        .'<div class="bg-primary bg-gradient rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">'
+                        .'<span class="text-white fw-bold">'.strtoupper(substr($user['name'], 0, 1)).'</span>'
+                        .'</div>'
+                        .'<div><strong>'.$user['name'].'</strong></div>'
+                        .'</div>',
+                        $user['email'],
+                        $user['is_active']
+                            ? '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Active</span>'
+                            : '<span class="badge bg-secondary"><i class="fas fa-times-circle me-1"></i>Inactive</span>',
+                        '<span title="'.\Carbon\Carbon::parse($user['created_at'])->format('F d, Y \a\t g:i A').'">'.\Carbon\Carbon::parse($user['created_at'])->diffForHumans().'</span>',
+                        '<div class="btn-group" role="group">'
+                        .'<a href="'.route('users.show', $user['id']).'" class="btn btn-sm btn-outline-primary" title="View"><i class="fas fa-eye"></i></a>'
+                        .'<a href="'.route('users.edit', $user['id']).'" class="btn btn-sm btn-outline-warning" title="Edit"><i class="fas fa-edit"></i></a>'
+                        .'<button type="button" class="btn btn-sm btn-outline-danger" title="Delete" onclick="confirmDelete(\''.route('users.destroy', $user['id']).'\', \'Delete User\', \'Are you sure you want to delete '.e($user['name']).'? This action cannot be undone.\')"><i class="fas fa-trash"></i></button>'
+                        .'</div>'
+                    ];
+                }
+
+                return response()->json([
+                    'draw' => $draw,
+                    'recordsTotal' => $pagination['total'],
+                    'recordsFiltered' => $pagination['total'],
+                    'data' => $formattedData
+                ]);
             }
-            return view('users.index', [
-                'users' => $result['data']['data'],
-                'pagination' => $result['data']['pagination'],
-                'filters' => $result['data']['filters'] ?? [],
-                'appliedFilters' => $filters
-            ]);
+
+            // Regular page load - show the view (no users data, DataTables will fetch via AJAX)
+            return view('users.index');
         } catch (TokenExpiredException $e) {
             return redirect()->route('login')->with('error', 'Session expired, please log in again.');
         }

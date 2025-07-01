@@ -38,7 +38,7 @@ class UserController extends Controller
                 'is_active' => 'nullable|in:true,false,1,0,yes,no,on,off',
                 'created_at_from' => 'nullable|date',
                 'created_at_to' => 'nullable|date',
-                'sort_by' => 'nullable|in:name,email,created_at',
+                'sort_by' => 'nullable|in:id,name,email,created_at',
                 'sort_order' => 'nullable|in:asc,desc',
                 'page' => 'nullable|integer|min:1',
                 'per_page' => 'nullable|integer|min:1',
