@@ -116,6 +116,25 @@
         .table th { background: #eee; color: #111; }
         .badge { background: #eee; color: #111; border-radius: 4px; padding: 0.25em 0.5em; }
         .alert { border-radius: 6px; }
+
+        /* Dropdown styles */
+        .dropdown-menu {
+            background: #fff;
+            border: 1px solid #bbb;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .dropdown-item {
+            color: #111;
+            padding: 0.5rem 1rem;
+        }
+        .dropdown-item:hover {
+            background: #f4f4f4;
+        }
+        .dropdown-item.text-danger:hover {
+            background: #dc3545;
+            color: #fff;
+        }
     </style>
 
     <!-- Select2 CSS -->
@@ -137,22 +156,44 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav mx-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('users.index') }}">Manage Users</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('tasks.index') }}">Manage Tasks</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('api_logs.index') }}">API Logs</a>
-                        </li>
-                    </ul>
+                    @if($isAuthenticated)
+                        <ul class="navbar-nav mx-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('users.index') }}">Manage Users</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('tasks.index') }}">Manage Tasks</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('api_logs.index') }}">API Logs</a>
+                            </li>
+                        </ul>
+                    @endif
                     <ul class="navbar-nav ms-auto">
-                        <!-- If session-based auth is restored, put profile dropdown here -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('login') }}">Login</a>
-                        </li>
+                        @if($isAuthenticated)
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user me-1"></i>
+                                    {{ $currentUser['name'] ?? 'User' }}
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <li><a class="dropdown-item" href="{{ route('profile') }}"><i class="fas fa-user-circle me-2"></i>Profile</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        @else
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('login') }}">Login</a>
+                            </li>
+                        @endif
                     </ul>
                 </div>
             </div>

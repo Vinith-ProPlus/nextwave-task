@@ -181,11 +181,13 @@ class UserController extends Controller
             if (!$this->apiService->isAuthenticated()) {
                 return redirect()->route('login');
             }
-            $userId = auth()->user()->id;
-            $result = $this->apiService->getUser($userId);
+
+            // Get current user profile from API
+            $result = $this->apiService->getProfile();
             if (!$result['success']) {
-                return redirect()->route('dashboard')->with('error', $result['message'] ?? 'User not found');
+                return redirect()->route('dashboard')->with('error', $result['message'] ?? 'Failed to load profile');
             }
+
             return view('users.profile', ['user' => $result['data']]);
         } catch (TokenExpiredException $e) {
             return redirect()->route('login')->with('error', 'Session expired, please log in again.');

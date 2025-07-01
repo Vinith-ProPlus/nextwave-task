@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Services\ApiService;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Share authentication state with all views
+        View::composer('*', function ($view) {
+            $apiService = app(ApiService::class);
+            $view->with('isAuthenticated', $apiService->isAuthenticated());
+
+            if ($apiService->isAuthenticated()) {
+                $profile = $apiService->getProfile();
+                $view->with('currentUser', $profile['success'] ? $profile['data'] : null);
+            }
+        });
     }
 }
