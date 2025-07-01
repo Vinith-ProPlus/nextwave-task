@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Services\TokenExpiredException;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class TaskController extends Controller
 {
@@ -23,20 +24,94 @@ class TaskController extends Controller
             if (!$this->apiService->isAuthenticated()) {
                 return redirect()->route('login');
             }
-            $filters = $request->only(['search', 'status', 'priority', 'sort_by', 'sort_order', 'page', 'per_page']);
-            $result = $this->apiService->getTasks($filters);
-            if (!$result['success']) {
-                return redirect()->back()->with('error', $result['message']);
+
+            // DataTables AJAX request
+            if ($request->ajax() && $request->has('draw')) {
+                $draw = $request->input('draw');
+                $start = $request->input('start', 0);
+                $length = $request->input('length', 10);
+                $search = $request->input('search.value', '');
+                $order = $request->input('order.0', []);
+
+                $filters = [
+                    'page' => ($start / $length) + 1,
+                    'per_page' => $length,
+                ];
+                if ($search) {
+                    $filters['search'] = $search;
+                }
+
+                // Handle sorting
+                $columns = $request->input('columns', []);
+                if (!empty($order)) {
+                    $columnIndex = $order['column'];
+                    $columnDirection = $order['dir'];
+                    $sortMap = [
+                        0 => 'created_at', // Map ID column to created_at for backend compatibility
+                        1 => 'title',
+                        2 => 'user_id',
+                        3 => 'assigned_by',
+                        4 => 'status',
+                        5 => 'priority',
+                        6 => 'due_date',
+                        7 => 'created_at',
+                    ];
+                    if (isset($sortMap[$columnIndex])) {
+                        $filters['sort_by'] = $sortMap[$columnIndex];
+                        $filters['sort_order'] = $columnDirection;
+                    }
+                }
+
+                $result = $this->apiService->getTasks($filters);
+                if (!$result['success']) {
+                    return response()->json([
+                        'draw' => $draw,
+                        'recordsTotal' => 0,
+                        'recordsFiltered' => 0,
+                        'data' => [],
+                        'error' => $result['message']
+                    ]);
+                }
+                $data = $result['data']['data'];
+                $pagination = $result['data']['pagination'];
+
+                // Format data for DataTables
+                $formattedData = [];
+                foreach ($data as $task) {
+                    $formattedData[] = [
+                        $task['id'],
+                        '<div><strong>' . e(Str::limit($task['title'], 40)) . '</strong>' .
+                        ($task['description'] ? '<br><small class="text-muted">' . e(Str::limit($task['description'], 50)) . '</small>' : '') . '</div>',
+                        (isset($task['user']) && $task['user'])
+                            ? '<div class="d-flex align-items-center"><div class="bg-primary bg-gradient rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;"><span class="text-white fw-bold small">' . strtoupper(substr($task['user']['name'], 0, 1)) . '</span></div><span>' . e($task['user']['name']) . '</span></div>'
+                            : '<span class="text-muted">Unassigned</span>',
+                        (isset($task['assigned_by']) && $task['assigned_by'])
+                            ? '<div class="d-flex align-items-center"><div class="bg-success bg-gradient rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;"><span class="text-white fw-bold small">' . strtoupper(substr($task['assigned_by']['name'], 0, 1)) . '</span></div><span>' . e($task['assigned_by']['name']) . '</span></div>'
+                            : '<span class="text-muted">System</span>',
+                        '<span class="badge status-' . e($task['status']) . '">' . ucfirst(str_replace('_', ' ', $task['status'])) . '</span>',
+                        '<span class="badge priority-' . e($task['priority']) . '">' . ucfirst($task['priority']) . '</span>',
+                        $task['due_date']
+                            ? '<span title="' . \Carbon\Carbon::parse($task['due_date'])->format('F d, Y \a\t g:i A') . '">' . \Carbon\Carbon::parse($task['due_date'])->format('M d, Y') . (\Carbon\Carbon::parse($task['due_date'])->isPast() && $task['status'] !== 'completed' ? ' <i class="fas fa-exclamation-triangle ms-1 text-danger"></i>' : '') . '</span>'
+                            : '<span class="text-muted">No due date</span>',
+                        '<span title="' . \Carbon\Carbon::parse($task['created_at'])->format('F d, Y \a\t g:i A') . '">' . \Carbon\Carbon::parse($task['created_at'])->diffForHumans() . '</span>',
+                        '<div class="btn-group" role="group">'
+                        .'<a href="'.route('tasks.show', $task['id']).'" class="btn btn-sm btn-outline-primary" title="View"><i class="fas fa-eye"></i></a>'
+                        .'<a href="'.route('tasks.edit', $task['id']).'" class="btn btn-sm btn-outline-warning" title="Edit"><i class="fas fa-edit"></i></a>'
+                        .'<button type="button" class="btn btn-sm btn-outline-danger" title="Delete" onclick="confirmDelete(\''.route('tasks.destroy', $task['id']).'\', \'Delete Task\', \'Are you sure you want to delete this task? This action cannot be undone.\')"><i class="fas fa-trash"></i></button>'
+                        .'</div>'
+                    ];
+                }
+
+                return response()->json([
+                    'draw' => $draw,
+                    'recordsTotal' => $pagination['total'],
+                    'recordsFiltered' => $pagination['total'],
+                    'data' => $formattedData
+                ]);
             }
-            $usersResult = $this->apiService->getUsers(['per_page' => 100000]);
-            $users = $usersResult['success'] ? $usersResult['data']['data'] : [];
-            return view('tasks.index', [
-                'tasks' => $result['data']['data'],
-                'pagination' => $result['data']['pagination'],
-                'filters' => $result['data']['filters'] ?? [],
-                'appliedFilters' => $filters,
-                'users' => $users
-            ]);
+
+            // Regular page load - show the view (no tasks data, DataTables will fetch via AJAX)
+            return view('tasks.index');
         } catch (TokenExpiredException $e) {
             return redirect()->route('login')->with('error', 'Session expired, please log in again.');
         }

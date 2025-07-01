@@ -35,7 +35,7 @@ class TaskController extends Controller
             ];
 
             $searchableFields = ['title', 'description'];
-            $sortableFields = ['title', 'status', 'priority', 'due_date', 'created_at'];
+            $sortableFields = ['id', 'title', 'status', 'priority', 'due_date', 'created_at'];
 
             // Load user relationships
             $query->with(['user', 'assignedBy']);
