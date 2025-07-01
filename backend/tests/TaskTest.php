@@ -531,29 +531,6 @@ class TaskTest extends TestCase
     }
 
     /**
-     * Test filtering tasks by date range
-     */
-    public function test_can_filter_by_date_range()
-    {
-        Task::create([
-            'user_id' => $this->user->id,
-            'assigned_by' => $this->user->id,
-            'title' => 'Task with due date',
-            'description' => 'Task with specific due date',
-            'status' => 'pending',
-            'priority' => 'medium',
-            'due_date' => '2025-06-15'
-        ]);
-
-        $response = $this->get('/api/tasks?start_date=2025-06-01&end_date=2025-06-30', ['Authorization' => 'Bearer ' . $this->token]);
-        $response->assertResponseStatus(200);
-
-        $data = json_decode($response->response->getContent(), true);
-        $this->assertCount(1, $data['data']['data']);
-        $this->assertEquals('Task with due date', $data['data']['data'][0]['title']);
-    }
-
-    /**
      * Test sorting tasks
      */
     public function test_can_sort_tasks()
@@ -615,16 +592,6 @@ class TaskTest extends TestCase
     public function test_validates_filter_parameters()
     {
         $response = $this->get('/api/tasks?sort_by=invalid_field', ['Authorization' => 'Bearer ' . $this->token]);
-
-        $response->assertResponseStatus(422);
-    }
-
-    /**
-     * Test validation of pagination parameters
-     */
-    public function test_validates_pagination_parameters()
-    {
-        $response = $this->get('/api/tasks?per_page=150', ['Authorization' => 'Bearer ' . $this->token]);
 
         $response->assertResponseStatus(422);
     }

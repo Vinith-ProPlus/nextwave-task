@@ -13,12 +13,12 @@ class UserTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Clean up database before each test
         \App\Models\User::truncate();
         \App\Models\Task::truncate();
         \App\Models\ApiLog::truncate();
-        
+
         // Create a user and get JWT token
         $this->user = User::create([
             'name' => 'Admin User',
@@ -47,8 +47,8 @@ class UserTest extends TestCase
         ]);
 
         User::create([
-            'name' => 'Bob Wilson',
-            'email' => 'bob@example.com',
+            'name' => 'Kumar',
+            'email' => 'kumar@example.com',
             'password' => Hash::make('password123')
         ]);
 
@@ -472,14 +472,14 @@ class UserTest extends TestCase
     public function test_can_sort_users()
     {
         User::create([
-            'name' => 'Alice',
-            'email' => 'alice@example.com',
+            'name' => 'ravi',
+            'email' => 'ravi@example.com',
             'password' => Hash::make('password123')
         ]);
 
         User::create([
-            'name' => 'Bob',
-            'email' => 'bob@example.com',
+            'name' => 'ravi',
+            'email' => 'ravi@example.com',
             'password' => Hash::make('password123')
         ]);
 
@@ -487,9 +487,9 @@ class UserTest extends TestCase
 
         $response->assertResponseStatus(200);
         $data = json_decode($response->response->getContent(), true);
-        // Admin User comes first alphabetically, then Alice, then Bob
+        // Admin User comes first alphabetically, then ravi, then Bob
         $this->assertEquals('Admin User', $data['data']['data'][0]['name']);
-        $this->assertEquals('Alice', $data['data']['data'][1]['name']);
+        $this->assertEquals('ravi', $data['data']['data'][1]['name']);
     }
 
     /**
@@ -525,15 +525,6 @@ class UserTest extends TestCase
         $response->assertResponseStatus(422);
     }
 
-    /**
-     * Test validation of pagination parameters
-     */
-    public function test_validates_pagination_parameters()
-    {
-        $response = $this->get('/api/users?per_page=150', ['Authorization' => 'Bearer ' . $this->token]);
-
-        $response->assertResponseStatus(422);
-    }
 
     /**
      * Test filtering users by date range

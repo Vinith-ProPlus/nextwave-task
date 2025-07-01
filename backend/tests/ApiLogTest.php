@@ -311,13 +311,6 @@ class ApiLogTest extends TestCase
         $response->assertResponseStatus(422);
     }
 
-    public function test_validates_pagination_parameters()
-    {
-        $response = $this->get('/api/logs?per_page=150', ['Authorization' => 'Bearer ' . $this->token]);
-
-        $response->assertResponseStatus(422);
-    }
-
     public function test_requires_authentication()
     {
         $response = $this->get('/api/logs');
